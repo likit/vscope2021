@@ -14,7 +14,7 @@ const routes = [
         component: () => import('../views/Main.vue')
     },
     {
-        path: '/',
+        path: '/login',
         name: 'LogIn',
         meta: {
             title: 'Log In Page',
@@ -26,9 +26,27 @@ const routes = [
         name: 'CreatorMain',
         meta: {
             title: 'Creator Main Page',
-            requireAuth: true
+            requiresAuth: true
         },
         component: () => import('../views/creator/Main.vue')
+    },
+    {
+        path: '/creator/program-list',
+        name: 'ProgramList',
+        meta: {
+            title: 'Program List',
+            requiresAuth: true
+        },
+        component: () => import('../views/creator/ProgramList.vue')
+    },
+    {
+        path: '/creator/program-info',
+        name: 'ProgramInfo',
+        meta: {
+            title: 'Program Info',
+            requiresAuth: true
+        },
+        component: () => import('../views/creator/ProgramInfo.vue')
     }
 ]
 
