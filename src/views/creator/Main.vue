@@ -1,6 +1,6 @@
 <template>
 <div>
-  <nav-menu :is-logged-in="isLoggedIn"></nav-menu>
+  <nav-menu :is-logged-in="isLoggedIn" @logout="isLoggedIn=false"></nav-menu>
   <section class="section">
     <div class="columns">
       <div class="column is-one-third is-offset-4">
@@ -14,6 +14,12 @@
               <i class="fas fa-book" aria-hidden="true"></i>
             </span>
             Programs
+          </router-link>
+          <router-link class="panel-block" :to="{ name: 'ProgramList' }">
+            <span class="panel-icon">
+              <i class="fas fa-book" aria-hidden="true"></i>
+            </span>
+            Media
           </router-link>
         </div>
       </div>

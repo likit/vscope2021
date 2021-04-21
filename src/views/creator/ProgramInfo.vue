@@ -1,6 +1,6 @@
 <template>
 <div>
-  <nav-menu></nav-menu>
+  <nav-menu :is-logged-in="isLoggedIn" @logout="isLoggedIn=false"></nav-menu>
   <section class="section">
     <div class="columns">
       <div class="column">
@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import {db} from '../../firebase'
+import {db, auth} from '../../firebase'
 import NavMenu from "../../components/navMenu";
 
 export default {
@@ -30,11 +30,15 @@ export default {
   data() {
     return {
       program: null,
-      programId: null
+      programId: null,
+      isLoggedIn: false
     }
   },
   beforeMount() {
     let self = this
+    if (auth.currentUser) {
+      self.isLoggedIn = true
+    }
     self.programId = this.$route.params.programId
     db.collection('programs').doc(self.programId).get().then((snapshot)=>{
       if (snapshot.exists) {

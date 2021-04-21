@@ -5,11 +5,11 @@
     <div class="columns">
       <div class="column is-one-third is-offset-4 box has-text-centered">
         <h1 class="title">Log In</h1>
-        <button @click="login" class="button is-danger">
+        <button @click="login" class="button is-rounded is-outlined is-danger">
           <span class="icon">
             <i class="fab fa-google"></i>
           </span>
-          <span>Google Log In</span>
+          <span>Log In With Google Account</span>
         </button>
       </div>
     </div>
