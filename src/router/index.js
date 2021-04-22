@@ -58,6 +58,15 @@ const routes = [
         component: () => import('../views/creator/MediaList.vue')
     },
     {
+        path: '/creator/media-browser',
+        name: 'MediaBrowser',
+        meta: {
+            title: 'Media Browser',
+            requiresAuth: true
+        },
+        component: () => import('../views/creator/MediaBrowser.vue')
+    },
+    {
         path: '/creator/media',
         name: 'MediaUpload',
         meta: {
@@ -76,6 +85,15 @@ const routes = [
         component: () => import('../views/creator/ProgramEditForm.vue')
     },
     {
+        path: '/creator/lesson/info',
+        name: 'LessonInfo',
+        meta: {
+            title: 'Lesson Info',
+            requiresAuth: true
+        },
+        component: () => import('../views/creator/LessonInfo.vue')
+    },
+    {
         path: '/creator/lesson/form',
         name: 'LessonEditForm',
         meta: {
@@ -83,7 +101,25 @@ const routes = [
             requiresAuth: true
         },
         component: () => import('../views/creator/LessonEditForm.vue')
-    }
+    },
+    {
+        path: '/creator/session/info',
+        name: 'SessionInfo',
+        meta: {
+            title: 'Session Info',
+            requiresAuth: true
+        },
+        component: () => import('../views/creator/SessionInfo.vue')
+    },
+    {
+        path: '/creator/questions/info',
+        name: 'QuestionInfo',
+        meta: {
+            title: 'Question Info',
+            requiresAuth: true
+        },
+        component: () => import('../views/creator/QuestionInfo.vue')
+    },
 ]
 
 const router = new VueRouter({

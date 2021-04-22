@@ -4,6 +4,7 @@
   <section class="section">
     <div class="columns">
       <div class="column">
+        <p>{{ $route.params.sessionId }}</p>
         <b-table :data="media" :loading="isLoading">
           <b-table-column field="data.fileUrl" label="ตัวอย่าง" v-slot="props">
             <b-image :src="props.row.data.fileUrl" ratio="2by1" :alt="props.row.data.name"></b-image>
@@ -28,11 +29,13 @@
           <b-table-column v-slot="props">
             <router-link class="button is-light is-rounded"
                          v-if="props.row.data.uploader==user.email"
-                         :to="{ name: 'MediaUpload', params: { mediaId: props.row.id }}">
-              <span class="icon">
-                <i class="fas fa-pencil-alt"></i>
-              </span>
-              <span>edit</span>
+                         :to="{
+                           name: 'QuestionInfo',
+                           params: { mediaId: props.row.id, sessionId: $route.params.sessionId }}">
+            <span class="icon">
+              <i class="fas fa-pencil-alt"></i>
+            </span>
+              <span>use</span>
             </router-link>
           </b-table-column>
         </b-table>
@@ -42,15 +45,15 @@
       <div class="column has-text-centered">
         <div class="buttons is-centered">
           <button class="button is-light" @click="$router.back()">
-            <span class="icon">
-              <i class="fas fa-chevron-left"></i>
-            </span>
+          <span class="icon">
+            <i class="fas fa-chevron-left"></i>
+          </span>
             <span>Back</span>
           </button>
           <router-link :to="{ name: 'MediaUpload' }" class="button is-primary">
-            <span class="icon">
-              <i class="fas fa-plus-circle"></i>
-            </span>
+          <span class="icon">
+            <i class="fas fa-plus-circle"></i>
+          </span>
             <span>Upload Media</span>
           </router-link>
         </div>
@@ -58,14 +61,15 @@
     </div>
   </section>
 </div>
+
 </template>
 
 <script>
 import NavMenu from "../../components/navMenu";
-import {auth,db} from "../../firebase";
+import {auth, db} from "../../firebase";
 
 export default {
-  name: "MediaList",
+  name: "MediaBrowser",
   data() {
     return {
       isLoading: true,
