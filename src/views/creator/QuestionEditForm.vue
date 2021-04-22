@@ -5,7 +5,7 @@
       <div class="columns">
         <div class="column">
           <h1 class="title has-text-centered">
-            New Question
+            Edit Question
           </h1>
         </div>
       </div>
