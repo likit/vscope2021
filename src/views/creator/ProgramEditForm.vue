@@ -20,7 +20,7 @@
           </b-select>
         </b-field>
         <div class="buttons is-centered">
-          <button class="button is-light" @click="$router.back()">
+          <button class="button is-light" @click="$router.push({ name: 'ProgramList' })">
             <span class="icon">
               <i class="fas fa-chevron-left"></i>
             </span>

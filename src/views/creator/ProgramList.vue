@@ -19,7 +19,8 @@
             {{ props.row.createdAt }}
           </b-table-column>
           <b-table-column field="id" label="ID" width="40" v-slot="props">
-            <a class="button is-small is-info is-outlined is-rounded" @click="$router.push({ name: 'ProgramInfo', params: {programId: props.row.id}})">
+            <a class="button is-small is-info is-outlined is-rounded"
+               @click="$router.push({ name: 'ProgramInfo', params: {programId: props.row.id}})">
               <span class="icon">
                 <i class="fas fa-info-circle"></i>
               </span>

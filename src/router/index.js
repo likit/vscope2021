@@ -74,6 +74,15 @@ const routes = [
             requiresAuth: true
         },
         component: () => import('../views/creator/ProgramEditForm.vue')
+    },
+    {
+        path: '/creator/lesson/form',
+        name: 'LessonEditForm',
+        meta: {
+            title: 'Lesson Edit Form',
+            requiresAuth: true
+        },
+        component: () => import('../views/creator/LessonEditForm.vue')
     }
 ]
 
