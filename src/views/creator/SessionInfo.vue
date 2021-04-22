@@ -23,11 +23,11 @@
         </div>
         <b-table :data="questions" :loading="isLoading">
           <b-table-column field="name" label="ชื่อ" v-slot="props">
-            {{ props.row.name }}
+            {{ props.row.data.title }}
           </b-table-column>
           <b-table-column field="id" width="40" v-slot="props">
             <a class="button is-small is-info is-outlined is-rounded"
-               @click="$router.push({ name: 'QuestionInfo', params: {sessionId: props.row.id}})">
+               @click="$router.push({ name: 'QuestionEditForm', params: {sessionId: props.row.id, questionId: props.row.id }})">
           <span class="icon">
             <i class="fas fa-info-circle"></i>
           </span>
@@ -85,11 +85,16 @@ export default {
     db.collection('sessions').doc(this.sessionId).get().then((snapshot)=>{
       if (snapshot.exists) {
         self.session = snapshot.data()
-        self.session.questions.forEach((q)=>{
-          self.questions.push(q)
-        })
       }
       self.isLoading = false
+    })
+    db.collection('questions').get().then((snapshot)=>{
+      snapshot.docs.forEach((q)=>{
+        self.questions.push({
+          id: q.id,
+          data: q.data()
+        })
+      })
     })
   }
 }

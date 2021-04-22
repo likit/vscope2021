@@ -120,6 +120,15 @@ const routes = [
         },
         component: () => import('../views/creator/QuestionInfo.vue')
     },
+    {
+        path: '/creator/question/edit',
+        name: 'QuestionEditForm',
+        meta: {
+            title: 'Question Edit Form',
+            requiresAuth: true
+        },
+        component: () => import('../views/creator/QuestionEditForm.vue')
+    },
 ]
 
 const router = new VueRouter({

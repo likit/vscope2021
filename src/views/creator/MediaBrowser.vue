@@ -27,8 +27,16 @@
             {{ props.row.data.uploaded_at.toDate().toLocaleString() }}
           </b-table-column>
           <b-table-column v-slot="props">
-            <router-link class="button is-light is-rounded"
-                         v-if="props.row.data.uploader==user.email"
+            <router-link class="button is-light is-rounded" v-if="$route.params.questionId"
+                         :to="{
+                           name: 'QuestionEditForm',
+                           params: { mediaId: props.row.id, sessionId: $route.params.sessionId, questionId: $route.params.questionId }}">
+            <span class="icon">
+              <i class="fas fa-pencil-alt"></i>
+            </span>
+              <span>use</span>
+            </router-link>
+            <router-link class="button is-light is-rounded" v-else
                          :to="{
                            name: 'QuestionInfo',
                            params: { mediaId: props.row.id, sessionId: $route.params.sessionId }}">
