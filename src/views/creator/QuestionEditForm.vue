@@ -93,8 +93,6 @@
             </div>
           </div>
         </div>
-        <div class="column is-3">
-        </div>
       </div>
     </section>
   </div>
