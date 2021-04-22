@@ -15,9 +15,9 @@
             </span>
             Programs
           </router-link>
-          <router-link class="panel-block" :to="{ name: 'ProgramList' }">
+          <router-link class="panel-block" :to="{ name: 'MediaList' }">
             <span class="panel-icon">
-              <i class="fas fa-book" aria-hidden="true"></i>
+              <i class="far fa-file-image"></i>
             </span>
             Media
           </router-link>

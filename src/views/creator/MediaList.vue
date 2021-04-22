@@ -1,0 +1,85 @@
+<template>
+  <div>
+    <nav-menu :is-logged-in="isLoggedIn" @logout="isLoggedIn=false"></nav-menu>
+    <section class="section">
+      <div class="columns">
+        <div class="column">
+          <b-table :data="media">
+            <b-table-column field="data.fileUrl" label="ตัวอย่าง" v-slot="props">
+              <b-image :src="props.row.data.fileUrl" ratio="2by1" :alt="props.row.data.name"></b-image>
+            </b-table-column>
+            <b-table-column field="data.name" label="ชื่อ" v-slot="props">
+              {{ props.row.data.name }}
+            </b-table-column>
+            <b-table-column field="data.note" label="คำอธิบาย" v-slot="props">
+              {{ props.row.data.note }}
+            </b-table-column>
+            <b-table-column field="data.tags" label="ป้าย" v-slot="props">
+              <b-taglist>
+                <b-tag v-for="tag in props.row.data.tags" :key="tag" type="is-info is-light">{{ tag }}</b-tag>
+              </b-taglist>
+            </b-table-column>
+            <b-table-column field="data.uploader" label="อัพโหลดโดย" v-slot="props">
+              {{ props.row.data.uploader }}
+            </b-table-column>
+            <b-table-column field="data.uploaded_at" label="อัพโหลดเมื่อ" v-slot="props">
+              {{ props.row.data.uploaded_at.toDate().toLocaleString() }}
+            </b-table-column>
+            <b-table-column v-slot="props">
+              <router-link class="button is-light is-small is-rounded"
+                           :to="{ name: 'MediaUpload', params: { mediaId: props.row.id }}">
+                edit
+              </router-link>
+            </b-table-column>
+          </b-table>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column has-text-centered">
+          <router-link :to="{ name: 'MediaUpload' }" class="button is-primary">
+            <span class="icon">
+              <i class="fas fa-plus-circle"></i>
+            </span>
+            <span>Upload Media</span>
+          </router-link>
+        </div>
+      </div>
+    </section>
+  </div>
+</template>
+
+<script>
+import NavMenu from "../../components/navMenu";
+import {auth,db} from "../../firebase";
+
+export default {
+  name: "MediaList",
+  data() {
+    return {
+      isLoggedIn: false,
+      media: []
+    }
+  },
+  components: {NavMenu},
+  mounted() {
+    const self = this
+    if (auth.currentUser) {
+      this.isLoggedIn = true
+    }
+    db.collection('media')
+        .where('uploader', '==', auth.currentUser.email)
+        .get().then((snapshot)=>{
+      snapshot.docs.forEach((d)=>{
+        self.media.push({
+          id: d.id,
+          data: d.data()
+        })
+      })
+    })
+  }
+}
+</script>
+
+<style scoped>
+
+</style>

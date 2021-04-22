@@ -47,6 +47,24 @@ const routes = [
             requiresAuth: true
         },
         component: () => import('../views/creator/ProgramInfo.vue')
+    },
+    {
+        path: '/creator/media',
+        name: 'MediaList',
+        meta: {
+            title: 'Media List',
+            requiresAuth: true
+        },
+        component: () => import('../views/creator/MediaList.vue')
+    },
+    {
+        path: '/creator/media',
+        name: 'MediaUpload',
+        meta: {
+            title: 'Media Upload',
+            requiresAuth: true
+        },
+        component: () => import('../views/creator/MediaUpload.vue')
     }
 ]
 
