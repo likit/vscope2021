@@ -5,7 +5,7 @@
     <div class="columns">
       <div class="column is-three-fifths is-offset-2">
         <h1 class="title">Your Programs</h1>
-        <b-table :data="programs">
+        <b-table :data="programs" :loading="isLoading">
           <b-table-column field="name" label="Name" width="40" v-slot="props">
             {{ props.row.name }}
           </b-table-column>
@@ -19,7 +19,7 @@
             {{ props.row.createdAt }}
           </b-table-column>
           <b-table-column field="id" label="ID" width="40" v-slot="props">
-            <a class="button is-small is-rounded" @click="$router.push({ name: 'ProgramInfo', params: {programId: props.row.id}})">
+            <a class="button is-small is-info is-outlined is-rounded" @click="$router.push({ name: 'ProgramInfo', params: {programId: props.row.id}})">
               <span class="icon">
                 <i class="fas fa-info-circle"></i>
               </span>
@@ -30,13 +30,21 @@
       </div>
     </div>
     <div class="columns">
-      <div class="column is-three-fifths is-offset-2 has-text-centered">
-        <button class="button is-success">
-          <span class="icon">
-            <i class="fas fa-plus-circle"></i>
-          </span>
-          <span>Add</span>
-        </button>
+      <div class="column is-three-fifths is-offset-2">
+        <div class="buttons is-centered">
+          <button class="button is-light" @click="$router.back()">
+            <span class="icon">
+              <i class="fas fa-chevron-left"></i>
+            </span>
+            <span>Back</span>
+          </button>
+          <router-link class="button is-success" :to="{ name: 'ProgramEditForm' }">
+            <span class="icon">
+              <i class="fas fa-plus-circle"></i>
+            </span>
+            <span>Add</span>
+          </router-link>
+        </div>
       </div>
     </div>
   </section>
@@ -53,16 +61,18 @@ export default {
   data() {
     return {
       programs: [],
+      isLoading: true,
       isLoggedIn: false,
+      user: null,
     }
   },
   mounted() {
     if (auth.currentUser) {
       this.isLoggedIn = true
+      this.user = auth.currentUser
     }
     let self = this
     db.collection('programs')
-        .where('creator',  '==', auth.currentUser.email)
         .get().then((snapshot) => {
       snapshot.docs.forEach((r)=>{
         let data = r.data()
@@ -74,6 +84,7 @@ export default {
           createdAt: data.createdAt.toDate().toLocaleString()
         })
       })
+      self.isLoading = false
     })
   }
 }

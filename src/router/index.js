@@ -65,6 +65,15 @@ const routes = [
             requiresAuth: true
         },
         component: () => import('../views/creator/MediaUpload.vue')
+    },
+    {
+        path: '/creator/program/form',
+        name: 'ProgramEditForm',
+        meta: {
+            title: 'Program Edit Form',
+            requiresAuth: true
+        },
+        component: () => import('../views/creator/ProgramEditForm.vue')
     }
 ]
 

@@ -4,7 +4,7 @@
     <section class="section">
       <div class="columns">
         <div class="column">
-          <b-table :data="media">
+          <b-table :data="media" :loading="isLoading">
             <b-table-column field="data.fileUrl" label="ตัวอย่าง" v-slot="props">
               <b-image :src="props.row.data.fileUrl" ratio="2by1" :alt="props.row.data.name"></b-image>
             </b-table-column>
@@ -68,6 +68,7 @@ export default {
   name: "MediaList",
   data() {
     return {
+      isLoading: true,
       isLoggedIn: false,
       user: null,
       media: []
@@ -88,6 +89,7 @@ export default {
           data: d.data()
         })
       })
+      self.isLoading = false
     })
   }
 }
