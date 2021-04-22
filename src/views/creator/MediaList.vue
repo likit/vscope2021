@@ -26,9 +26,13 @@
               {{ props.row.data.uploaded_at.toDate().toLocaleString() }}
             </b-table-column>
             <b-table-column v-slot="props">
-              <router-link class="button is-light is-small is-rounded"
+              <router-link class="button is-light is-rounded"
+                           v-if="props.row.data.uploader==user.email"
                            :to="{ name: 'MediaUpload', params: { mediaId: props.row.id }}">
-                edit
+                <span class="icon">
+                  <i class="fas fa-pencil-alt"></i>
+                </span>
+                <span>edit</span>
               </router-link>
             </b-table-column>
           </b-table>
@@ -36,12 +40,20 @@
       </div>
       <div class="columns">
         <div class="column has-text-centered">
-          <router-link :to="{ name: 'MediaUpload' }" class="button is-primary">
-            <span class="icon">
-              <i class="fas fa-plus-circle"></i>
-            </span>
-            <span>Upload Media</span>
-          </router-link>
+          <div class="buttons is-centered">
+            <button class="button is-light" @click="$router.back()">
+              <span class="icon">
+                <i class="fas fa-chevron-left"></i>
+              </span>
+              <span>Back</span>
+            </button>
+            <router-link :to="{ name: 'MediaUpload' }" class="button is-primary">
+              <span class="icon">
+                <i class="fas fa-plus-circle"></i>
+              </span>
+              <span>Upload Media</span>
+            </router-link>
+          </div>
         </div>
       </div>
     </section>
@@ -57,6 +69,7 @@ export default {
   data() {
     return {
       isLoggedIn: false,
+      user: null,
       media: []
     }
   },
@@ -65,9 +78,9 @@ export default {
     const self = this
     if (auth.currentUser) {
       this.isLoggedIn = true
+      self.user = auth.currentUser
     }
     db.collection('media')
-        .where('uploader', '==', auth.currentUser.email)
         .get().then((snapshot)=>{
       snapshot.docs.forEach((d)=>{
         self.media.push({
