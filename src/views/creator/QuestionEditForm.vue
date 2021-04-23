@@ -10,7 +10,7 @@
         </div>
       </div>
       <div class="columns">
-        <div class="column is-9">
+        <div class="column">
           <div class="tile is-ancestor">
             <div class="tile">
               <div class="tile is-parent">
@@ -19,9 +19,9 @@
                 </div>
               </div>
               <div class="tile is-parent">
-                <div class="tile is-child notification is-light is-info">
+                <div class="tile is-child box">
                   <b-field label="คำสั่งหรือคำถาม" type="is-danger" message="required">
-                    <b-input v-model="question.title"></b-input>
+                    <b-input v-model="question.title" type="textarea"></b-input>
                   </b-field>
                   <b-field label="คะแนน">
                     <b-numberinput :min="0" type="is-info" v-model="question.point"></b-numberinput>
@@ -38,18 +38,27 @@
                         <span>เลือกรูปภาพ</span>
                       </router-link>
                       <button class="button is-outlined is-danger" :disabled="media === null" @click="removeMedia">
-                        เอารูปภาพออก
+                        <span class="icon">
+                          <i class="far fa-trash-alt"></i>
+                        </span>
+                        <span>ลบรูปภาพ</span>
                       </button>
                     </div>
                     <b-field label="X">
-                      <b-input v-model="question.x" :disabled="media === null"></b-input>
+                      <b-input v-model="question.x" :readonly="true" :disabled="media === null"></b-input>
                     </b-field>
                     <b-field label="Y">
-                      <b-input v-model="question.y" :disabled="media === null"></b-input>
+                      <b-input v-model="question.y" :readonly="true" :disabled="media === null"></b-input>
                     </b-field>
+                    <button class="button is-danger is-outlined" @click="removePin">
+                      <span class="icon">
+                        <i class="fas fa-map-pin"></i>
+                      </span>
+                      <span>ลบเข็มชี้</span>
+                    </button>
                   </div>
                   <div class="notification is-light is-warning">
-                    <h1 class="title is-size-5">ตัวเลือก</h1>
+                    <h1 class="title is-size-5">ตัวเลือกคำตอบ</h1>
                     <b-field>
                       <div class="block">
                         <b-radio v-for="choice in question.choices" :key="choice" v-model="question.answer"
@@ -87,6 +96,12 @@
                       </span>
                       <span>Save</span>
                     </button>
+                    <button class="button is-warning" @click="copyData">
+                      <span class="icon">
+                        <i class="far fa-copy"></i>
+                      </span>
+                      <span>Save as new</span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -119,6 +134,7 @@ export default {
       choice: null,
       newChoice: null,
       bmp: null,
+      pin: null,
     }
   },
   mounted() {
@@ -142,12 +158,19 @@ export default {
           db.collection('media').doc(self.question.mediaId).get().then((snapshot) => {
             if (snapshot.exists) {
               self.media = snapshot.data()
-              self.queue.loadFile(
-                  {
-                    src: self.media.fileUrl,
-                    crossOrigin: true,
-                    id: "image"
-                  }
+              self.queue.loadManifest(
+                  [
+                    {
+                      src: self.media.fileUrl,
+                      crossOrigin: true,
+                      id: "image"
+                    },
+                    {
+                      src: "https://firebasestorage.googleapis.com/v0/b/virtual-microscope-b0953.appspot.com/o/assets%2Fpin.png?alt=media&token=d876b071-31a8-4b17-b281-b7c2828e5250",
+                      crossOrigin: true,
+                      id: 'pin'
+                    }
+                  ]
               )
             }
           })
@@ -172,11 +195,13 @@ export default {
       this.question.x = null
       this.question.y = null
       this.stage.removeChild(this.bmp)
+      this.stage.removeChild(this.pin)
       this.stage.update()
     },
     saveData() {
       if (this.question.title) {
-        db.collection('questions').doc(this.questionId).update(this.question).then(() => {
+        db.collection('questions')
+            .doc(this.questionId).update(this.question).then(() => {
           this.$buefy.toast.open({
             message: "บันทึกคำถามเรียบร้อย",
             type: "is-success",
@@ -194,16 +219,60 @@ export default {
         })
       }
     },
+    copyData() {
+      const self = this
+      if (this.question.title) {
+        this.question.title += "(copy)"
+        db.collection("questions").add(this.question).then(() => {
+          self.$buefy.toast.open({
+            message: "บันทึกคำถามเรียบร้อย",
+            type: "is-success",
+          })
+          self.$router.push({name: "SessionInfo", params: {sessionId: self.sessionId}})
+        })
+      } else {
+        this.$buefy.dialog.alert({
+          message: 'กรุณากรอกข้อมูลในช่องที่จำเป็น',
+          type: 'is-danger',
+          hasIcon: true,
+          icon: 'times-circle',
+          iconPack: 'fa',
+          ariaRole: 'alertdialog',
+          ariaModal: true
+        })
+      }
+    },
+    removePin () {
+      this.question.x = null
+      this.question.y = null
+      this.stage.removeChild(this.pin)
+      this.stage.update()
+    },
     handleComplete() {
       let image = this.queue.getResult('image')
+      let pin = this.queue.getResult('pin')
       this.bmp = new this.createjs.Bitmap(image);
+      this.pin = new this.createjs.Bitmap(pin)
       this.bmp.addEventListener("click", this.handleClick);
-      this.stage.addChild(this.bmp);
-      this.stage.update();
+      this.stage.addChild(this.bmp)
+      if (this.question.x && this.question.y) {
+        this.pin.x = this.question.x - 30
+        this.pin.y = this.question.y - 62
+        this.stage.addChild(this.pin)
+      }
+      this.stage.update()
     },
     handleClick(event) {
+      if (this.question.x == null && this.question.y == null) {
+        this.stage.addChild(this.pin)
+      }
       this.question.x = event.localX.toFixed(2);
       this.question.y = event.localY.toFixed(2);
+      if (this.question.x && this.question.y) {
+        this.pin.x = this.question.x - 30
+        this.pin.y = this.question.y - 62
+      }
+      this.stage.update()
     }
   }
 }
