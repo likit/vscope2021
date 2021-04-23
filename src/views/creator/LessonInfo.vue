@@ -4,10 +4,9 @@
   <section class="section">
     <div class="columns">
       <div class="column is-three-fifths is-offset-2">
-        <p>Lesson: {{lessonId}}</p>
         <div v-if="lesson !== null">
           <h1 class="title has-text-centered">
-            โปรแกรม
+            บทเรียน
           </h1>
           <h2 class="subtitle has-text-centered">
             ชื่อ {{ lesson.name }}
@@ -42,14 +41,14 @@
       <div class="column is-three-fifths is-offset-2">
         <div class="buttons is-centered">
           <button class="button is-light"
-                  @click="$router.push({ name: 'ProgramInfo', params: { programId: programId } })">
+                  @click="$router.push({ name: 'ProgramInfo', params: { programId: lesson.programId } })">
           <span class="icon">
             <i class="fas fa-chevron-left"></i>
           </span>
             <span>Back</span>
           </button>
           <router-link class="button is-success"
-                       :to="{ name: 'LessonEditForm', params: { programId: programId }}">
+                       :to="{ name: 'SessionEdit', params: { lessonId: lessonId }}">
           <span class="icon">
             <i class="fas fa-plus-circle"></i>
           </span>
@@ -73,7 +72,6 @@ export default {
     return {
       lesson: null,
       lessonId: null,
-      programId: null,
       sessions: [],
       isLoggedIn: false,
       isLoading: true
@@ -85,7 +83,6 @@ export default {
       this.isLoggedIn = true
     }
     this.lessonId = this.$route.params.lessonId
-    this.programId = this.$route.params.programId
     db.collection('lessons').doc(this.lessonId).get().then((snapshot)=>{
       if (snapshot.exists) {
         self.lesson = snapshot.data()

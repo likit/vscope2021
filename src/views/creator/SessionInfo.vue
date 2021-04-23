@@ -13,7 +13,7 @@
           </h2>
           <div class="has-text-centered">
             <button class="button is-primary"
-                    @click="$router.push({ name: 'LessonEditForm', params: { lessonId: lessonId }})">
+                    @click="$router.push({ name: 'LessonEditForm', params: { lessonId: session.lessonId }})">
           <span class="icon">
             <i class="fas fa-edit"></i>
           </span>
@@ -35,7 +35,7 @@
           </b-table-column>
           <b-table-column field="id" width="40" v-slot="props">
             <a class="button is-small is-info is-outlined is-rounded"
-               @click="$router.push({ name: 'QuestionEditForm', params: {sessionId: sessionId, questionId: props.row.id }})">
+               @click="$router.push({ name: 'QuestionEditForm', params: { questionId: props.row.id }})">
           <span class="icon">
             <i class="far fa-eye"></i>
           </span>
@@ -49,7 +49,7 @@
       <div class="column is-three-fifths is-offset-2">
         <div class="buttons is-centered">
           <button class="button is-light"
-                  @click="$router.push({ name: 'LessonInfo', params: { lessonId: lessonId } })">
+                  @click="$router.push({ name: 'LessonInfo', params: { lessonId: session.lessonId } })">
         <span class="icon">
           <i class="fas fa-chevron-left"></i>
         </span>

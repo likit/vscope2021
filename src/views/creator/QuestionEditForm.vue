@@ -39,7 +39,7 @@
                     <p class="notification" v-if="media">ชื่อ {{ media.name }}</p>
                     <div class="buttons">
                       <router-link class="button is-info is-outlined"
-                                   :to="{ name: 'MediaBrowser', params: { sessionId: sessionId, questionId: questionId }}">
+                                   :to="{ name: 'MediaBrowser', params: { questionId: questionId }}">
               <span class="icon">
                 <i class="far fa-image"></i>
               </span>
@@ -92,7 +92,7 @@
                   </div>
                   <div class="buttons is-centered">
                     <button class="button is-light"
-                            @click="$router.push({ name: 'SessionInfo', params: { sessionId: $route.params.sessionId }})">
+                            @click="$router.push({ name: 'SessionInfo', params: { sessionId: question.sessionId }})">
                       <span class="icon">
                         <i class="fas fa-chevron-left"></i>
                       </span>
@@ -138,7 +138,6 @@ export default {
     return {
       isLoggedIn: false,
       questionId: null,
-      sessionId: null,
       question: {
         choices: [],
       },
@@ -161,7 +160,6 @@ export default {
     if (auth.currentUser) {
       this.isLoggedIn = true
     }
-    this.sessionId = this.$route.params.sessionId
     this.questionId = this.$route.params.questionId
     this.stage = new this.createjs.Stage(this.$refs.imageCanvasEdit);
     this.queue = new this.createjs.LoadQueue(false, null, true);
@@ -251,7 +249,7 @@ export default {
             message: "บันทึกคำถามเรียบร้อย",
             type: "is-success",
           })
-          self.$router.push({name: "SessionInfo", params: {sessionId: self.sessionId}})
+          self.$router.push({name: "SessionInfo", params: {sessionId: self.question.sessionId}})
         })
       } else {
         this.$buefy.dialog.alert({
@@ -277,7 +275,7 @@ export default {
               message: "ลบรายการเรียบร้อย",
               type: "is-success",
             })
-            self.$router.push({name: "SessionInfo", params: {sessionId: self.sessionId}})
+            self.$router.push({name: "SessionInfo", params: {sessionId: self.question.sessionId}})
           })
         }
       })

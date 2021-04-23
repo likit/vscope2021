@@ -33,7 +33,7 @@
           </b-table-column>
           <b-table-column field="id" width="40" v-slot="props">
             <a class="button is-small is-info is-outlined is-rounded"
-               @click="$router.push({ name: 'LessonInfo', params: {programId: props.row.id, lessonId: props.row.id}})">
+               @click="$router.push({ name: 'LessonInfo', params: {programId: programId, lessonId: props.row.id}})">
               <span class="icon">
                 <i class="fas fa-info-circle"></i>
               </span>

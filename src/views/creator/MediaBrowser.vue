@@ -30,7 +30,7 @@
             <router-link class="button is-light is-rounded" v-if="$route.params.questionId"
                          :to="{
                            name: 'QuestionEditForm',
-                           params: { mediaId: props.row.id, sessionId: $route.params.sessionId, questionId: $route.params.questionId }}">
+                           params: { mediaId: props.row.id, questionId: $route.params.questionId }}">
             <span class="icon">
               <i class="fas fa-pencil-alt"></i>
             </span>

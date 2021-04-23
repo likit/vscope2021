@@ -33,12 +33,12 @@
     <div class="columns">
       <div class="column is-three-fifths is-offset-2">
         <div class="buttons is-centered">
-          <button class="button is-light" @click="$router.back()">
+          <router-link class="button is-light" :to="{ name: 'CreatorMain' }">
             <span class="icon">
               <i class="fas fa-chevron-left"></i>
             </span>
             <span>Back</span>
-          </button>
+          </router-link>
           <router-link class="button is-success" :to="{ name: 'ProgramEditForm' }">
             <span class="icon">
               <i class="fas fa-plus-circle"></i>
