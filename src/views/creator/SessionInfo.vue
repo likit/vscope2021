@@ -21,17 +21,25 @@
             </button>
           </div>
         </div>
+        <hr>
+        <h1 class="title has-text-centered">รายการคำถาม</h1>
         <b-table :data="questions" :loading="isLoading">
           <b-table-column field="name" label="ชื่อ" v-slot="props">
             {{ props.row.data.title }}
           </b-table-column>
+          <b-table-column field="creator" label="ผู้สร้าง" v-slot="props">
+            {{ props.row.data.creator }}
+          </b-table-column>
+          <b-table-column field="updatedAt" label="แก้ไขเมื่อ" v-slot="props">
+            {{ props.row.data.updatedAt.toDate().toLocaleString() }}
+          </b-table-column>
           <b-table-column field="id" width="40" v-slot="props">
             <a class="button is-small is-info is-outlined is-rounded"
-               @click="$router.push({ name: 'QuestionEditForm', params: {sessionId: props.row.id, questionId: props.row.id }})">
+               @click="$router.push({ name: 'QuestionEditForm', params: {sessionId: sessionId, questionId: props.row.id }})">
           <span class="icon">
-            <i class="fas fa-info-circle"></i>
+            <i class="far fa-eye"></i>
           </span>
-              <span>detail</span>
+              <span>view</span>
             </a>
           </b-table-column>
         </b-table>
@@ -88,7 +96,8 @@ export default {
       }
       self.isLoading = false
     })
-    db.collection('questions').get().then((snapshot)=>{
+    db.collection('questions')
+        .where('sessionId', '==', this.sessionId).get().then((snapshot)=>{
       snapshot.docs.forEach((q)=>{
         self.questions.push({
           id: q.id,

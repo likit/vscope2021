@@ -7,6 +7,14 @@
           <h1 class="title has-text-centered">
             Edit Question
           </h1>
+          <h2 class="subtitle has-text-centered has-text-info-dark" v-if="question.updatedAt">
+            <span>โดย {{ question.creator }}</span>
+            &ensp;
+            <span class="icon">
+              <i class="far fa-clock"></i>
+            </span>
+            <span>{{ question.updatedAt.toLocaleString() }}</span>
+          </h2>
         </div>
       </div>
       <div class="columns">
@@ -90,7 +98,7 @@
                       </span>
                       <span>Back</span>
                     </button>
-                    <button class="button is-success" @click="saveData">
+                    <button class="button is-success" @click="saveData" v-if="editable">
                       <span class="icon">
                         <i class="far fa-save"></i>
                       </span>
@@ -101,6 +109,12 @@
                         <i class="far fa-copy"></i>
                       </span>
                       <span>Save as new</span>
+                    </button>
+                    <button class="button is-danger" @click="deleteData" v-if="editable">
+                      <span class="icon">
+                        <i class="far fa-trash-alt"></i>
+                      </span>
+                      <span>Delete</span>
                     </button>
                   </div>
                 </div>
@@ -137,6 +151,11 @@ export default {
       pin: null,
     }
   },
+  computed: {
+    editable: function () {
+      return this.question.creator == auth.currentUser.email
+    },
+  },
   mounted() {
     const self = this
     if (auth.currentUser) {
@@ -151,6 +170,7 @@ export default {
       if (snapshot.exists) {
         self.question = snapshot.data()
         self.choice = self.question.answer
+        self.question.updatedAt = self.question.updatedAt.toDate()
         if (self.$route.params.mediaId) {
           self.question.mediaId = self.$route.params.mediaId
         }
@@ -200,6 +220,7 @@ export default {
     },
     saveData() {
       if (this.question.title) {
+        this.question.updatedAt = new Date()
         db.collection('questions')
             .doc(this.questionId).update(this.question).then(() => {
           this.$buefy.toast.open({
@@ -222,7 +243,9 @@ export default {
     copyData() {
       const self = this
       if (this.question.title) {
-        this.question.title += "(copy)"
+        this.question.creator = auth.currentUser.email
+        this.question.updatedAt = new Date()
+        this.question.title += "(copy -- edit me!)"
         db.collection("questions").add(this.question).then(() => {
           self.$buefy.toast.open({
             message: "บันทึกคำถามเรียบร้อย",
@@ -241,6 +264,23 @@ export default {
           ariaModal: true
         })
       }
+    },
+    deleteData () {
+      const self = this
+      this.$buefy.dialog.confirm({
+        title: "รายการลบแล้วไม่สามารถกู้คืนได้",
+        message: 'ท่านต้องการลบรายการนี้หรือไม่',
+        type: 'is-danger',
+        onConfirm: ()=>{
+          db.collection('questions').doc(this.questionId).delete().then(()=>{
+            self.$buefy.toast.open({
+              message: "ลบรายการเรียบร้อย",
+              type: "is-success",
+            })
+            self.$router.push({name: "SessionInfo", params: {sessionId: self.sessionId}})
+          })
+        }
+      })
     },
     removePin () {
       this.question.x = null
