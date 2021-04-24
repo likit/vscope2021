@@ -93,7 +93,8 @@ export default {
         self.program = snapshot.data()
       }
     })
-    db.collection('lessons').get().then((snapshot)=>{
+    db.collection('lessons')
+        .where('programId', '==', self.programId).get().then((snapshot)=>{
       snapshot.docs.forEach((d)=>{
         self.lessons.push({
           id: d.id,
