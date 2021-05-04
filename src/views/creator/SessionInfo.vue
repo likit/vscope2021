@@ -24,6 +24,9 @@
         <hr>
         <h1 class="title has-text-centered">รายการคำถาม</h1>
         <b-table :data="questions" :loading="isLoading">
+          <b-table-column field="no" label="ลำดับ" v-slot="props">
+            {{ props.row.data.no }}
+          </b-table-column>
           <b-table-column field="name" label="ชื่อ" v-slot="props">
             {{ props.row.data.title }}
           </b-table-column>
