@@ -151,7 +151,7 @@ export default {
                   id: "image"
                 },
                 {
-                  src: "https://firebasestorage.googleapis.com/v0/b/virtual-microscope-b0953.appspot.com/o/assets%2Fpin.png?alt=media&token=d876b071-31a8-4b17-b281-b7c2828e5250",
+                  src: "https://firebasestorage.googleapis.com/v0/b/virtual-microscope-b0953.appspot.com/o/assets%2Fpin2.png?alt=media&token=6e87c161-32b6-411c-9c0d-df9adf275709",
                   crossOrigin: true,
                   id: 'pin'
                 }
