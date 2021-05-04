@@ -18,7 +18,12 @@
           <b-table-column field="createdAt" label="Created At" width="40" v-slot="props">
             {{ props.row.createdAt }}
           </b-table-column>
-          <b-table-column field="id" label="ID" width="40" v-slot="props">
+          <b-table-column width="40" v-slot="props" label="Published">
+            <span class="icon" v-if="props.row.published">
+              <i class="fas fa-check-circle has-text-success"></i>
+            </span>
+          </b-table-column>
+          <b-table-column width="40" v-slot="props">
             <a class="button is-small is-info is-outlined is-rounded"
                @click="$router.push({ name: 'ProgramInfo', params: {programId: props.row.id}})">
               <span class="icon">
@@ -80,6 +85,7 @@ export default {
         self.programs.push({
           id: r.id,
           name: data.name,
+          published: data.published,
           discipline: data.discipline,
           creator: data.creator,
           createdAt: data.createdAt.toDate().toLocaleString()

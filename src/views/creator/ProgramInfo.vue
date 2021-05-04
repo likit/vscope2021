@@ -11,7 +11,7 @@
           <h2 class="subtitle has-text-centered">
             ชื่อ {{ program.name }}
           </h2>
-          <div class="has-text-centered">
+          <div class="has-text-centered" v-if="editable">
             <button class="button is-primary"
                     @click="$router.push({ name: 'ProgramEditForm', params: { programId: programId }})">
               <span class="icon">
@@ -81,6 +81,11 @@ export default {
       isLoggedIn: false,
       isLoading: true
     }
+  },
+  computed: {
+    editable: function () {
+      return this.program.creator == auth.currentUser.email
+    },
   },
   beforeMount() {
     let self = this
