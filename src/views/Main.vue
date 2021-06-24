@@ -19,7 +19,7 @@
       <div class="column has-text-centered">
         <div class="buttons is-centered">
           <a class="button is-light">About</a>
-          <a class="button is-primary">
+          <a class="button is-primary" @click="$router.push({ name: 'UserProgramList'})">
               <span class="icon">
                 <i class="fas fa-play-circle"></i>
               </span>

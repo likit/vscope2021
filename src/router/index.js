@@ -138,6 +138,24 @@ const routes = [
         },
         component: () => import('../views/creator/QuestionEditForm.vue')
     },
+    {
+        path: '/user/programs',
+        name: 'UserProgramList',
+        meta: {
+            title: 'Programs',
+            requiresAuth: true
+        },
+        component: () => import('../views/user/ProgramList.vue')
+    },
+    {
+        path: '/user/programs/:programId/lessons',
+        name: 'UserLessonList',
+        meta: {
+            title: 'Lessons',
+            requiresAuth: true
+        },
+        component: () => import('../views/user/LessonList.vue')
+    },
 ]
 
 const router = new VueRouter({
