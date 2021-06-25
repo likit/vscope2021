@@ -13,7 +13,7 @@
           </h2>
           <div class="has-text-centered">
             <button class="button is-primary"
-                    @click="$router.push({ name: 'LessonEditForm', params: { lessonId: lessonId }})">
+                    @click="$router.push({ name: 'LessonEditForm', params: { lessonId: lessonId, programId: lesson.programId }})">
             <span class="icon">
               <i class="fas fa-edit"></i>
             </span>

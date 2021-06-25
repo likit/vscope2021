@@ -43,7 +43,9 @@ export default {
   components: {NavMenu},
   data() {
     return {
+      published: null,
       isLoggedIn: false,
+      lessonId: null,
       programId: null,
       objective: null,
       name: null,
@@ -55,6 +57,17 @@ export default {
       self.isLoggedIn = true
     }
     self.programId = this.$route.params.programId
+    self.lessonId = this.$route.params.lessonId
+    if (self.lessonId) {
+      db.collection('lessons').doc(self.lessonId).get().then((snapshot)=>{
+        if (snapshot.exists) {
+          let data = snapshot.data()
+          self.name = data.name
+          self.objective = data.objective
+          self.published = data.published || false
+        }
+      })
+    }
   },
   methods: {
     saveData: function () {
