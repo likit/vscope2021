@@ -156,6 +156,33 @@ const routes = [
         },
         component: () => import('../views/user/LessonList.vue')
     },
+    {
+        path: '/user/programs/:programId/lessons/:lessonId/sessions',
+        name: 'UserSessionList',
+        meta: {
+            title: 'Sessions',
+            requiresAuth: true
+        },
+        component: () => import('../views/user/SessionList.vue')
+    },
+    {
+        path: '/user/programs/:programId/lessons/:lessonId/sessions/:sessionId/questions',
+        name: 'UserQuestionList',
+        meta: {
+            title: 'Questions',
+            requiresAuth: true
+        },
+        component: () => import('../views/user/QuestionList.vue')
+    },
+    {
+        path: '/user/programs/:programId/lessons/:lessonId/sessions/:sessionId/questions/:questionNo',
+        name: 'Question',
+        meta: {
+            title: 'Question',
+            requiresAuth: true
+        },
+        component: () => import('../views/user/Question.vue')
+    },
 ]
 
 const router = new VueRouter({

@@ -24,7 +24,8 @@
             </b-table-column>
             <b-table-column field="id" width="40" v-slot="props">
               <a class="button is-info is-rounded"
-                 @click="$router.push({ name: 'LessonInfo', params: {programId: programId, lessonId: props.row.id}})">
+                 @click="$router.push({ name: 'UserSessionList',
+                   params: {programId: programId, lessonId: props.row.id}})">
                 <span class="icon">
                     <i class="fas fa-chevron-circle-right"></i>
                 </span>
@@ -37,19 +38,12 @@
       <div class="columns">
         <div class="column is-three-fifths is-offset-2">
           <div class="buttons is-centered">
-            <button class="button is-light" @click="$router.push({ name: 'ProgramList' })">
+            <button class="button is-light" @click="$router.push({ name: 'UserProgramList' })">
             <span class="icon">
               <i class="fas fa-chevron-left"></i>
             </span>
               <span>Back</span>
             </button>
-            <router-link class="button is-success"
-                         :to="{ name: 'LessonEditForm', params: { programId: programId }}">
-            <span class="icon">
-              <i class="fas fa-plus-circle"></i>
-            </span>
-              <span>เพิ่มบทเรียน</span>
-            </router-link>
           </div>
         </div>
       </div>
