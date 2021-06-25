@@ -9,7 +9,7 @@
               ชุดแบบฝึก
             </h1>
             <h2 class="subtitle has-text-centered">
-              ชื่อ {{ session.name }} {{ sessionId }}
+              ชื่อ {{ session.name }}
             </h2>
           </div>
           <hr>
@@ -48,7 +48,7 @@
                       params: { lessonId: session.lessonId,
                                 programId: $route.params.programId,
                                 sessionId: sessionId,
-                                questionNo: '1' }})">
+                                questionNo: '0' }})">
               <span class="icon">
                 <i class="fas fa-play-circle"></i>
               </span>
@@ -64,6 +64,7 @@
 <script>
 import NavMenu from "../../components/navMenu";
 import {auth, db} from "../../firebase";
+import {mapState} from "vuex";
 
 export default {
   name: "UserQuestionList",
@@ -74,8 +75,10 @@ export default {
       session: null,
       isLoggedIn: false,
       isLoading: true,
-      questions: [],
     }
+  },
+  computed: {
+    ...mapState(['questions'])
   },
   mounted() {
     const self = this
@@ -89,15 +92,8 @@ export default {
       }
       self.isLoading = false
     })
-    db.collection('questions')
-        .where('sessionId', '==', this.sessionId).get().then((snapshot)=>{
-      snapshot.docs.forEach((q)=>{
-        self.questions.push({
-          id: q.id,
-          data: q.data()
-        })
-      })
-    })
+    self.$store.dispatch('loadQuestion', this.sessionId)
+    // TODO: figure how to sort the question by no.
   }
 }
 </script>

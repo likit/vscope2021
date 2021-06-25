@@ -44,12 +44,6 @@
             </span>
               <span>Back</span>
             </router-link>
-            <router-link class="button is-success" :to="{ name: 'ProgramEditForm' }">
-            <span class="icon">
-              <i class="fas fa-plus-circle"></i>
-            </span>
-              <span>Add</span>
-            </router-link>
           </div>
         </div>
       </div>

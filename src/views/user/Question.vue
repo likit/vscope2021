@@ -5,7 +5,7 @@
       <div class="columns">
         <div class="column">
           <h1 class="title has-text-centered">
-            {{ question.title }}
+            ข้อที่ {{ question.no }}) {{ question.title }}
           </h1>
           <h2 class="subtitle has-text-centered is-size-6" v-if="question.updatedAt">
             <span>โดย {{ question.creator }}</span>
@@ -41,19 +41,17 @@
                     </b-field>
                   </div>
                   <div class="buttons is-centered">
-                    <button class="button is-light"
-                            @click="$router.push({ name: 'UserQuestionList', params: { sessionId: $route.params.sessionId,
-                              programId:$route.params.programId, lessonId:$route.params.lessonId }})">
+                    <button class="button is-light" @click="$router.back()">
                       <span class="icon">
                         <i class="fas fa-chevron-left"></i>
                       </span>
                       <span>Back</span>
                     </button>
                     <button class="button is-success" @click="nextQuestion">
-                      <span class="icon">
-                        <i class="far fa-save"></i>
-                      </span>
                       <span>Next</span>
+                      <span class="icon">
+                        <i class="fas fa-chevron-right"></i>
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -69,6 +67,7 @@
 <script>
 import NavMenu from "../../components/navMenu";
 import {auth, db} from "../../firebase";
+import {mapState} from "vuex";
 
 export default {
   name: "UserQuestion",
@@ -76,8 +75,8 @@ export default {
   data() {
     return {
       isLoggedIn: false,
-      questions: [],
       questionId: null,
+      questionNo: null,
       question: {
         choices: [],
       },
@@ -88,6 +87,9 @@ export default {
       bmp: null,
       pin: null,
     }
+  },
+  computed: {
+    ...mapState(['questions']),
   },
   watch: {
     '$route.params.questionNo': function () {
@@ -103,59 +105,79 @@ export default {
   methods: {
     loadData() {
       const self = this
-      let questionNo =  parseInt(self.$route.params.questionNo)
-      db.collection("questions")
-          .where("sessionId", "==", self.$route.params.sessionId)
-          .where("no", "==", questionNo)
-          .get().then((snapshot) => {
-            if (snapshot.docs.length == 0) {
-              self.$router.push({ name: 'UserQuestionList', params: { programId: self.$route.params.programId,
-                lessonId: self.$route.params.lessonId, sessionId: self.$route.params.sessionId }})
-            }
-        let doc = snapshot.docs[0]
-        self.question = doc.data()
+      self.questionNo =  parseInt(self.$route.params.questionNo)
+      self.question = self.questions[self.questionNo].data
+      self.questionId = self.questions[self.questionNo].id
+      try {
         self.question.updatedAt = self.question.updatedAt.toDate()
-        if (self.$route.params.mediaId) {
-          self.question.mediaId = self.$route.params.mediaId
-        }
-        if (self.question.mediaId) {
-          db.collection('media').doc(self.question.mediaId).get().then((snapshot) => {
-            if (snapshot.exists) {
-              self.media = snapshot.data()
-              self.queue.loadManifest(
-                  [
-                    {
-                      src: self.media.fileUrl,
-                      crossOrigin: true,
-                      id: "image"
-                    },
-                    {
-                      src: "https://firebasestorage.googleapis.com/v0/b/virtual-microscope-b0953.appspot.com/o/assets%2Fpin2.png?alt=media&token=6e87c161-32b6-411c-9c0d-df9adf275709",
-                      crossOrigin: true,
-                      id: 'pin'
-                    }
-                  ]
-              )
-            }
-          })
-        }
-      })
+      } catch (err) {
+        console.log('pass')
+      }
+      if (self.$route.params.mediaId) {
+        self.question.mediaId = self.$route.params.mediaId
+      }
+      if (self.question.mediaId) {
+        db.collection('media').doc(self.question.mediaId).get().then((snapshot) => {
+          if (snapshot.exists) {
+            self.media = snapshot.data()
+            self.queue.loadManifest(
+                [
+                  {
+                    src: self.media.fileUrl,
+                    crossOrigin: true,
+                    id: "image"
+                  },
+                  {
+                    src: "https://firebasestorage.googleapis.com/v0/b/virtual-microscope-b0953.appspot.com/o/assets%2Fpin2.png?alt=media&token=6e87c161-32b6-411c-9c0d-df9adf275709",
+                    crossOrigin: true,
+                    id: 'pin'
+                  }
+                ]
+            )
+          }
+        })
+      }
       this.stage = new this.createjs.Stage(this.$refs.imageCanvasEdit);
       this.queue = new this.createjs.LoadQueue(false, null, true);
       this.queue.on('complete', this.handleComplete)
     },
-    nextQuestion() {
+    prevQuestion() {
+      const self = this
+      let prev = self.questionNo > 0 ? self.questionNo - 1 : 0
+      console.log(prev)
       this.$buefy.toast.open({
         message: "บันทึกคำถามเรียบร้อย",
         type: "is-success",
       })
-      let questionNo = parseInt(this.$route.params.questionNo)
-      questionNo = questionNo + 1
       this.$router.push({
         name: 'Question',
         params: {lessonId: this.$route.params.lessonId, programId: this.$route.params.programId,
-          sessionId: this.$route.params.sessionId, questionNo: questionNo.toString()}
+          sessionId: this.$route.params.sessionId, questionNo: prev.toString()}
       })
+    },
+    nextQuestion() {
+      const self = this
+      let next = self.questionNo + 1
+      this.$buefy.toast.open({
+        message: "บันทึกคำถามเรียบร้อย",
+        type: "is-success",
+      })
+      if (next < self.questions.length) {
+        this.$router.push({
+          name: 'Question',
+          params: {lessonId: this.$route.params.lessonId, programId: this.$route.params.programId,
+            sessionId: this.$route.params.sessionId, questionNo: next.toString()}
+        })
+      } else {
+        this.$buefy.toast.open({
+          message: "จบแบบทดสอบ",
+          type: "is-success",
+        })
+        this.$router.push({
+          name: 'UserSessionList',
+          params: {lessonId: this.$route.params.lessonId,
+            programId: this.$route.params.programId, }})
+      }
     },
   handleComplete() {
     let image = this.queue.getResult('image')
