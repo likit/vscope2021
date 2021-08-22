@@ -30,12 +30,8 @@ export default {
       let self = this
       const provider = new firebase.auth.GoogleAuthProvider();
       auth.signInWithPopup(provider)
-        .then(function(result) {
-          self.$buefy.toast.open({
-            message: 'Login Successfully',
-            type: 'is-success'
-          })
-          console.log(result)
+        .then(function() {
+          self.$store.dispatch('signIn')
           self.$router.push({ name: 'MainPage'})
         })
         .catch(function(error){

@@ -1,5 +1,5 @@
 import Vuex from 'vuex'
-import {db} from '../firebase'
+import {auth, db} from '../firebase'
 import Vue from "vue";
 
 Vue.use(Vuex)
@@ -15,9 +15,17 @@ function sortQuestions(a, b) {
 
 const store = new Vuex.Store({
     state: {
+        user: null,
+        profile: {},
         questions: []
     },
     mutations: {
+        setUser(state, payload) {
+            state.user = payload
+        },
+        setProfile(state, payload) {
+            state.profile = payload
+        },
         addQuestion(state, question) {
             state.questions.push(question)
         },
@@ -41,6 +49,13 @@ const store = new Vuex.Store({
                     })
                 })
             })
+        },
+        signIn({commit}) {
+            commit('setUser', auth.currentUser)
+        },
+        signOut({commit}) {
+            commit('setUser', null)
+            commit('setProfile', {})
         }
     }
 })

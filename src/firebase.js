@@ -2,6 +2,9 @@ import firebase from '@firebase/app'
 import '@firebase/firestore'
 import '@firebase/storage'
 import '@firebase/auth'
+import {ToastProgrammatic} from "buefy";
+import router from './router'
+import store from "./store";
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -18,6 +21,22 @@ firebase.initializeApp(firebaseConfig)
 const db = firebase.firestore()
 const auth = firebase.auth()
 const storage = firebase.storage()
+
+auth.onAuthStateChanged(user=>{
+    if (user) {
+        ToastProgrammatic.open({
+            message: "You have logged in.",
+            type: "is-success"
+        })
+    } else {
+        store.dispatch('signOut').then(()=>{
+            ToastProgrammatic.open({
+                message: "You have logged out.",
+            })
+            router.push({ name: 'MainPage'})
+        })
+    }
+});
 
 export {
     firebase,

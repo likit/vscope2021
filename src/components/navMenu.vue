@@ -19,12 +19,17 @@
     </template>
 
     <template #end>
+      <b-navbar-item v-if="$store.state.user!=null">
+        <span class="icon">
+          <i class="fas fa-user-circle"></i>
+        </span>
+        <span>
+          {{ $store.state.user.displayName }}
+        </span>
+      </b-navbar-item>
       <b-navbar-item tag="div">
         <div class="buttons">
-          <a class="button is-primary">
-            <strong>Sign up</strong>
-          </a>
-          <router-link class="button is-info" :to="{ name: 'LogIn' }" v-if="!isLoggedIn">
+          <router-link class="button is-info" :to="{ name: 'LogIn' }" v-if="$store.state.user==null">
             Log in
           </router-link>
           <button class="button is-danger" @click="logout" v-else>
@@ -44,21 +49,7 @@ export default {
   props: ['isLoggedIn'],
   methods: {
     logout: function () {
-      let self = this
       auth.signOut()
-        .then(function() {
-          self.$buefy.toast.open({
-            message: 'Logged out successfully',
-            type: 'is-success'
-          })
-          self.$emit('logout')
-        })
-        .catch(function(error) {
-          self.$buefy.toast.open({
-            message: error.toString(),
-            type: 'is-danger'
-          })
-        });
     }
   }
 }
