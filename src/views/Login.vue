@@ -33,7 +33,6 @@ export default {
         .then(function() {
           self.$store.dispatch('signIn').then(()=>{
             if (JSON.stringify(self.$store.state.profile) === "{}") {
-              console.log(JSON.stringify(self.$store.state.profile, 'Login'))
               self.$router.push({ name: 'ProfileLanding' })
             } else {
               self.$router.push({ name: 'MainPage' })
