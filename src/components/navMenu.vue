@@ -7,7 +7,7 @@
         Home
       </b-navbar-item>
       <b-navbar-dropdown label="Programs">
-        <b-navbar-item href="#">
+        <b-navbar-item :to="{ name: 'UserProgramList' }" tag="router-link">
           Main Page
         </b-navbar-item>
       </b-navbar-dropdown>
