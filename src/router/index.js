@@ -49,6 +49,15 @@ const routes = [
         component: () => import('../views/user/Account')
     },
     {
+        path: '/account/records',
+        name: 'Record',
+        meta: {
+            title: 'Record',
+            requiresAuth: true
+        },
+        component: () => import('../views/user/Record')
+    },
+    {
         path: '/creator',
         name: 'CreatorMain',
         meta: {
