@@ -26,6 +26,9 @@
             <span>Programs</span>
           </a>
         </div>
+        <pre>
+          {{ $store.state.profile }}
+        </pre>
       </div>
     </div>
   </section>

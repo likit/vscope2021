@@ -15,6 +15,9 @@
             </span>
             <span>{{ question.updatedAt.toLocaleString() }}</span>
           </h2>
+          <pre>
+            {{ answers }}
+          </pre>
         </div>
       </div>
       <div class="columns">
@@ -41,6 +44,12 @@
                     </b-field>
                   </div>
                   <div class="buttons is-centered">
+                    <button class="button is-danger" @click="endSession">
+                      <span class="icon">
+                         <i class="far fa-times-circle"></i>
+                      </span>
+                      <span>End</span>
+                    </button>
                     <button class="button is-light" @click="$router.back()">
                       <span class="icon">
                         <i class="fas fa-chevron-left"></i>
@@ -89,11 +98,20 @@ export default {
     }
   },
   computed: {
-    ...mapState(['questions']),
+    ...mapState(['questions', 'answers']),
   },
   watch: {
     '$route.params.questionNo': function () {
       this.loadData()
+    },
+    'answer': function (val) {
+      this.answer = val
+      this.answers[this.questionNo] = {
+        'answer': val,
+        'updatedAt': new Date(),
+        'questionId': this.questionId,
+        'key': this.question.answer
+      }
     }
   },
   mounted() {
@@ -103,11 +121,44 @@ export default {
     this.loadData()
   },
   methods: {
-    loadData() {
+    endSession () {
       const self = this
-      self.questionNo =  parseInt(self.$route.params.questionNo)
+      self.$buefy.dialog.confirm({
+        message: 'ท่านต้องการสิ้นสุดชุดทดสอบนี้และเริ่มชุดทดสอบใหม่ใช่หรือไม่',
+        title: 'End the current session',
+        type: 'is-warning',
+        ariaRole: 'alertdialog',
+        ariaModal: true,
+        cancelText: "ยกเลิก",
+        confirmText: "ยืนยัน",
+        onConfirm: () => {
+          db.collection('records')
+              .where('sessionId', '==', self.$store.state.sessionId)
+              .orderBy('start', 'desc')
+              .get().then(snapshot=>{
+            let ref = snapshot.docs[0]
+            db.collection('records').doc(ref.id).update({
+              end: new Date()
+            }).then(()=>{
+              self.$buefy.toast.open({
+                message: "The session has ended.",
+                type: "is-success"
+              })
+              self.$store.dispatch('setSessionId', null)
+              self.$router.push({ name: 'MainPage' })
+            })
+          })
+        }
+      })
+    },
+    loadData () {
+      const self = this
+      self.questionNo = parseInt(self.$route.params.questionNo)
       self.question = self.questions[self.questionNo].data
       self.questionId = self.questions[self.questionNo].id
+      if (self.answers[self.questionNo] !== undefined) {
+        self.answer = self.answers[self.questionNo].answer
+      }
       try {
         self.question.updatedAt = self.question.updatedAt.toDate()
       } catch (err) {
@@ -151,48 +202,66 @@ export default {
       })
       this.$router.push({
         name: 'Question',
-        params: {lessonId: this.$route.params.lessonId, programId: this.$route.params.programId,
-          sessionId: this.$route.params.sessionId, questionNo: prev.toString()}
+        params: {
+          lessonId: this.$route.params.lessonId, programId: this.$route.params.programId,
+          sessionId: this.$route.params.sessionId, questionNo: prev.toString()
+        }
       })
     },
     nextQuestion() {
       const self = this
       let next = self.questionNo + 1
-      this.$buefy.toast.open({
-        message: "บันทึกคำถามเรียบร้อย",
-        type: "is-success",
+      db.collection('records')
+          .where('sessionId', '==', self.$store.state.sessionId)
+          .orderBy('start', 'desc').get().then(snapshot => {
+        if (snapshot.docs.length > 0) {
+          db.collection('records').doc(snapshot.docs[0].id).update({
+            answers: self.answers
+          }).then(() => {
+            self.$buefy.toast.open({
+              message: "บันทึกคำถามเรียบร้อย",
+              type: "is-success",
+            })
+          })
+        }
       })
       if (next < self.questions.length) {
         this.$router.push({
           name: 'Question',
-          params: {lessonId: this.$route.params.lessonId, programId: this.$route.params.programId,
-            sessionId: this.$route.params.sessionId, questionNo: next.toString()}
+          params: {
+            lessonId: this.$route.params.lessonId, programId: this.$route.params.programId,
+            sessionId: this.$route.params.sessionId, questionNo: next.toString()
+          }
         })
       } else {
+        this.$store.dispatch('setSessionId', null)
         this.$buefy.toast.open({
           message: "จบแบบทดสอบ",
           type: "is-success",
         })
         this.$router.push({
           name: 'UserSessionList',
-          params: {lessonId: this.$route.params.lessonId,
-            programId: this.$route.params.programId, }})
+          params: {
+            lessonId: this.$route.params.lessonId,
+            programId: this.$route.params.programId,
+          }
+        })
       }
     },
-  handleComplete() {
-    let image = this.queue.getResult('image')
-    let pin = this.queue.getResult('pin')
-        this.bmp = new this.createjs.Bitmap(image);
-        this.pin = new this.createjs.Bitmap(pin)
-        this.stage.addChild(this.bmp)
-        if (this.question.x && this.question.y) {
-          this.pin.x = this.question.x - 30
-          this.pin.y = this.question.y - 62
-          this.stage.addChild(this.pin)
-        }
-        this.stage.update()
+    handleComplete() {
+      let image = this.queue.getResult('image')
+      let pin = this.queue.getResult('pin')
+      this.bmp = new this.createjs.Bitmap(image);
+      this.pin = new this.createjs.Bitmap(pin)
+      this.stage.addChild(this.bmp)
+      if (this.question.x && this.question.y) {
+        this.pin.x = this.question.x - 30
+        this.pin.y = this.question.y - 62
+        this.stage.addChild(this.pin)
       }
+      this.stage.update()
     }
+  }
 }
 </script>
 

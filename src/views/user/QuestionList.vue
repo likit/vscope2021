@@ -94,7 +94,7 @@ export default {
         email: auth.currentUser.email,
         start: new Date(),
         sessionId: self.$route.params.sessionId,
-        questions: [],
+        answers: [],
       }).then(() => {
         self.$store.dispatch('setSessionId', self.$route.params.sessionId).then(() => {
           self.$router.push({
@@ -132,6 +132,16 @@ export default {
           cancelText: "ยกเลิก",
           confirmText: "ยืนยัน",
           onConfirm: self.startNew
+        })
+      } else {
+        self.$router.push({
+          name: 'Question',
+          params: {
+            lessonId: self.session.lessonId,
+            programId: self.$route.params.programId,
+            sessionId: self.sessionId,
+            questionNo: '0'
+          }
         })
       }
     }
