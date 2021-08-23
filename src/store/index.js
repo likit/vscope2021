@@ -17,6 +17,7 @@ const store = new Vuex.Store({
     state: {
         user: null,
         profile: {},
+        sessionId: null,
         questions: []
     },
     mutations: {
@@ -25,6 +26,9 @@ const store = new Vuex.Store({
         },
         setProfile(state, payload) {
             state.profile = payload
+        },
+        setSessionId(state, Id) {
+            state.sessionId = Id
         },
         addQuestion(state, question) {
             state.questions.push(question)
@@ -60,21 +64,28 @@ const store = new Vuex.Store({
                     data = snapshot.docs[0].data()
                 }
             })
-            if (data.group == "EQA") {
-                await db.collection('eqa_profile')
-                    .where('email', '==', auth.currentUser.email)
-                    .get().then(snapshot=>{
-                    if (snapshot.docs.length > 0) {
-                        let data = snapshot.docs[0].data()
-                        commit('setProfile', data)
-                        console.log(data, 'Store')
-                    }
-                })
-            }
+            if (data !== undefined)
+                if (data.group == "EQA") {
+                    await db.collection('eqa_profile')
+                        .where('email', '==', auth.currentUser.email)
+                        .get().then(snapshot=>{
+                        if (snapshot.docs.length > 0) {
+                            let data = snapshot.docs[0].data()
+                            commit('setProfile', data)
+                            console.log(data, 'Store')
+                        }
+                    })
+                }
         },
         signOut({commit}) {
             commit('setUser', null)
             commit('setProfile', {})
+        },
+        setSessionId({commit}, sessionId) {
+            commit('setSessionId', sessionId)
+        },
+        setProfile({commit}, profile) {
+            commit('setProfile', profile)
         }
     }
 })
