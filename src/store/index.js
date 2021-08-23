@@ -80,9 +80,18 @@ const store = new Vuex.Store({
                         if (snapshot.docs.length > 0) {
                             let data = snapshot.docs[0].data()
                             commit('setProfile', data)
-                            console.log(data, 'Store')
                         }
                     })
+                }
+                else if (data.group == "student") {
+                    await db.collection('student_profile')
+                        .where('email', '==', auth.currentUser.email)
+                        .get().then(snapshot=>{
+                            if (snapshot.docs.length > 0) {
+                                let data = snapshot.docs[0].data()
+                                commit('setProfile', data)
+                            }
+                        })
                 }
         },
         signOut({commit}) {

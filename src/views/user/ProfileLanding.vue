@@ -10,7 +10,7 @@
       <div class="columns">
         <div class="column is-one-third is-offset-4">
           <nav class="panel">
-            <a class="panel-block">
+            <a class="panel-block" @click="setGroup('student')">
               <span class="panel-icon">
                 <i class="fas fa-users"></i>
               </span>
@@ -48,10 +48,16 @@ export default {
             email: self.$store.state.user.email,
             group: group,
           }).then(() => {
-            self.$router.push({name: 'EQAProfile'})
+            if (group == 'EQA')
+              self.$router.push({name: 'EQAProfile'})
+            else if (group == 'student')
+              self.$router.push({name: 'StudProfile'})
           })
         } else {
-          self.$router.push({name: 'EQAProfile'})
+          if (group == 'EQA')
+            self.$router.push({name: 'EQAProfile'})
+          else if (group == 'student')
+            self.$router.push({name: 'StudProfile'})
         }
       })
     }

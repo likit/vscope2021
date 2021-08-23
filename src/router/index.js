@@ -40,6 +40,15 @@ const routes = [
         component: () => import('../views/user/EQAProfile')
     },
     {
+        path: '/stud-profile',
+        name: 'StudProfile',
+        meta: {
+            title: 'Student Profile',
+            requiresAuth: true
+        },
+        component: () => import('../views/user/StudProfile')
+    },
+    {
         path: '/account',
         name: 'Account',
         meta: {

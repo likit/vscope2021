@@ -32,6 +32,8 @@
 <script>
 import NavMenu from "../../components/navMenu";
 
+// TODO: add mechanism for going to different profile page based on the user's group
+
 export default {
   name: "Account",
   components: {NavMenu},
