@@ -19,7 +19,7 @@
     </template>
 
     <template #end>
-      <b-navbar-item v-if="$store.state.user!=null">
+      <b-navbar-item v-if="$store.state.user!=null" :to="{ name: 'Account' }" tag="router-link">
         <span class="icon">
           <i class="fas fa-user-circle"></i>
         </span>

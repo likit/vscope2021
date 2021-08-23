@@ -31,8 +31,14 @@ export default {
       const provider = new firebase.auth.GoogleAuthProvider();
       auth.signInWithPopup(provider)
         .then(function() {
-          self.$store.dispatch('signIn')
-          self.$router.push({ name: 'MainPage'})
+          self.$store.dispatch('signIn').then(()=>{
+            if (JSON.stringify(self.$store.state.profile) === "{}") {
+              console.log(JSON.stringify(self.$store.state.profile, 'Login'))
+              self.$router.push({ name: 'ProfileLanding' })
+            } else {
+              self.$router.push({ name: 'MainPage' })
+            }
+          })
         })
         .catch(function(error){
           const errorCode = error.code;

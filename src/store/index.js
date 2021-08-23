@@ -41,8 +41,8 @@ const store = new Vuex.Store({
             commit('clearQuestions')
             db.collection('questions')
                 .where('sessionId', '==', sessionId)
-                .get().then((snapshot)=>{
-                snapshot.docs.forEach((q)=>{
+                .get().then((snapshot) => {
+                snapshot.docs.forEach((q) => {
                     commit('addQuestion', {
                         id: q.id,
                         data: q.data()
@@ -50,8 +50,27 @@ const store = new Vuex.Store({
                 })
             })
         },
-        signIn({commit}) {
+        async signIn({commit}) {
             commit('setUser', auth.currentUser)
+            let data
+            await db.collection('email_group_pairs')
+                .where('email', '==', auth.currentUser.email)
+                .get().then(snapshot => {
+                if (snapshot.docs.length > 0) {
+                    data = snapshot.docs[0].data()
+                }
+            })
+            if (data.group == "EQA") {
+                await db.collection('eqa_profile')
+                    .where('email', '==', auth.currentUser.email)
+                    .get().then(snapshot=>{
+                    if (snapshot.docs.length > 0) {
+                        let data = snapshot.docs[0].data()
+                        commit('setProfile', data)
+                        console.log(data, 'Store')
+                    }
+                })
+            }
         },
         signOut({commit}) {
             commit('setUser', null)

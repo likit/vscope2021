@@ -22,6 +22,33 @@ const routes = [
         component: () => import('../views/Login.vue')
     },
     {
+        path: '/profile-landing',
+        name: 'ProfileLanding',
+        meta: {
+            title: 'Profile Landing',
+            requiresAuth: true
+        },
+        component: () => import('../views/user/ProfileLanding')
+    },
+    {
+        path: '/eqa-profile',
+        name: 'EQAProfile',
+        meta: {
+            title: 'EQA Profile',
+            requiresAuth: true
+        },
+        component: () => import('../views/user/EQAProfile')
+    },
+    {
+        path: '/account',
+        name: 'Account',
+        meta: {
+            title: 'Account',
+            requiresAuth: true
+        },
+        component: () => import('../views/user/Account')
+    },
+    {
         path: '/creator',
         name: 'CreatorMain',
         meta: {
