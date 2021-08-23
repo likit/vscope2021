@@ -18,7 +18,8 @@ const store = new Vuex.Store({
         user: null,
         profile: {},
         sessionId: null,
-        questions: []
+        questions: [],
+        answers: [],
     },
     mutations: {
         setUser(state, payload) {
@@ -38,6 +39,13 @@ const store = new Vuex.Store({
         },
         sortQuestions(state) {
             state.questions.sort(sortQuestions)
+        },
+        reset(state) {
+            state.user = null
+            state.profile = {}
+            state.sessionId = null
+            state.questions = []
+            state.answers = []
         }
     },
     actions: {
@@ -86,6 +94,12 @@ const store = new Vuex.Store({
         },
         setProfile({commit}, profile) {
             commit('setProfile', profile)
+        },
+        clearQuestions({commit}) {
+            commit('clearQuestions')
+        },
+        reset({commit}) {
+            commit('reset')
         }
     }
 })

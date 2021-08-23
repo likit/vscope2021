@@ -49,6 +49,7 @@ export default {
   props: ['isLoggedIn'],
   methods: {
     logout: function () {
+      this.$store.dispatch('reset')
       auth.signOut()
     }
   }
