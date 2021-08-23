@@ -16,12 +16,12 @@
               </span>
               Student
             </a>
-            <router-link class="panel-block" :to="{ name: 'EQAProfile' }">
+            <a class="panel-block" @click="setGroup('EQA')">
               <span class="panel-icon">
                 <i class="fas fa-users"></i>
               </span>
               EQA Members
-            </router-link>
+            </a>
           </nav>
         </div>
       </div>
@@ -31,9 +31,31 @@
 
 <script>
 import NavMenu from "../../components/navMenu";
+import {db} from "../../firebase";
+
 export default {
   name: "ProfileLanding",
   components: {NavMenu},
+  methods: {
+    setGroup(group) {
+      const self = this
+      db.collection('email_group_pairs')
+          .where('email', '==', self.$store.state.user.email)
+          .where('group', '==', group)
+          .get().then(snapshot => {
+        if (snapshot.docs.length == 0) {
+          db.collection('email_group_pairs').add({
+            email: self.$store.state.user.email,
+            group: group,
+          }).then(() => {
+            self.$router.push({name: 'EQAProfile'})
+          })
+        } else {
+          self.$router.push({name: 'EQAProfile'})
+        }
+      })
+    }
+  }
 }
 </script>
 
