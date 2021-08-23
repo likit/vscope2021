@@ -6,7 +6,7 @@
         <div class="column is-three-fifths is-offset-2">
           <div v-if="session !== null">
             <h1 class="title has-text-centered">
-              ชุดแบบฝึก
+              ชุดแบบฝึก {{ sessionId }} Store session Id is null = {{ $store.state.sessionId == null }}
             </h1>
             <h2 class="subtitle has-text-centered">
               ชื่อ {{ session.name }}
@@ -44,11 +44,7 @@
               <span>Back</span>
             </button>
             <button class="button is-info"
-                    @click="$router.push({ name: 'Question',
-                      params: { lessonId: session.lessonId,
-                                programId: $route.params.programId,
-                                sessionId: sessionId,
-                                questionNo: '0' }})">
+                    @click="start">
               <span class="icon">
                 <i class="fas fa-play-circle"></i>
               </span>
@@ -80,13 +76,73 @@ export default {
   computed: {
     ...mapState(['questions'])
   },
+  methods: {
+    startNew() {
+      const self = this
+      if (self.$store.state.sessionId != null) {
+        db.collection('records')
+            .where('sessionId', '==', self.$store.state.sessionId)
+            .orderBy('start', 'desc')
+            .get().then(snapshot=>{
+              let ref = snapshot.docs[0]
+              db.collection('records').doc(ref.id).update({
+                end: new Date()
+              })
+        })
+      }
+      db.collection('records').add({
+        email: auth.currentUser.email,
+        start: new Date(),
+        sessionId: self.$route.params.sessionId,
+        questions: [],
+      }).then(() => {
+        self.$store.dispatch('setSessionId', self.$route.params.sessionId).then(() => {
+          self.$router.push({
+            name: 'Question',
+            params: {
+              lessonId: self.session.lessonId,
+              programId: self.$route.params.programId,
+              sessionId: self.sessionId,
+              questionNo: '0'
+            }
+          })
+        })
+      })
+    },
+    start() {
+      const self = this
+      if (self.$store.state.sessionId != null && self.$store.state.sessionId !== self.sessionId) {
+        self.$buefy.dialog.confirm({
+          message: 'ท่านต้องการสิ้นสุดชุดทดสอบนี้และเริ่มชุดทดสอบใหม่ใช่หรือไม่',
+          title: 'End the current session',
+          type: 'is-warning',
+          ariaRole: 'alertdialog',
+          ariaModal: true,
+          cancelText: "ยกเลิก",
+          confirmText: "ยืนยัน",
+          onConfirm: self.startNew
+        })
+      } else if (self.$store.state.sessionId == null) {
+        self.$buefy.dialog.confirm({
+          message: 'ท่านต้องการเริ่มชุดทดสอบใหม่ใช่หรือไม่',
+          title: 'Start a new session',
+          type: 'is-success',
+          ariaRole: 'alertdialog',
+          ariaModal: true,
+          cancelText: "ยกเลิก",
+          confirmText: "ยืนยัน",
+          onConfirm: self.startNew
+        })
+      }
+    }
+  },
   mounted() {
     const self = this
     if (auth.currentUser) {
       this.isLoggedIn = true
     }
     this.sessionId = this.$route.params.sessionId
-    db.collection('sessions').doc(this.sessionId).get().then((snapshot)=>{
+    db.collection('sessions').doc(this.sessionId).get().then((snapshot) => {
       if (snapshot.exists) {
         self.session = snapshot.data()
       }
