@@ -38,7 +38,7 @@
       <div class="columns">
         <div class="column is-three-fifths is-offset-2">
           <div class="buttons is-centered">
-            <router-link class="button is-light" :to="{ name: 'CreatorMain' }">
+            <router-link class="button is-light" :to="{ name: 'MainPage' }">
             <span class="icon">
               <i class="fas fa-chevron-left"></i>
             </span>

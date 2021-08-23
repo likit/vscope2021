@@ -6,7 +6,7 @@
         <div class="column is-three-fifths is-offset-2">
           <div v-if="session !== null">
             <h1 class="title has-text-centered">
-              ชุดแบบฝึก {{ sessionId }} Store session Id is null = {{ $store.state.sessionId == null }}
+              ชุดแบบฝึก
             </h1>
             <h2 class="subtitle has-text-centered">
               ชื่อ {{ session.name }}

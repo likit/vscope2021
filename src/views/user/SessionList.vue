@@ -33,7 +33,7 @@
       <div class="column is-three-fifths is-offset-2">
         <div class="buttons is-centered">
           <button class="button is-light"
-                  @click="$router.push({ name: 'ProgramInfo', params: { programId: lesson.programId } })">
+                  @click="$router.push({ name: 'UserLessonList', params: { programId: lesson.programId } })">
             <span class="icon">
               <i class="fas fa-chevron-left"></i>
             </span>

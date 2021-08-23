@@ -16,12 +16,12 @@
               </span>
               Profile
             </router-link>
-            <a class="panel-block">
+            <router-link class="panel-block" :to="{ name: 'Record' }">
               <span class="panel-icon">
                 <i class="far fa-save"></i>
               </span>
               Records
-            </a>
+            </router-link>
           </nav>
         </div>
       </div>

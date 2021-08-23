@@ -27,9 +27,6 @@
             <button class="button is-light" @click="$router.push({ name: 'MainPage' })">Cancel</button>
             <button class="button is-success" @click="save">Save</button>
           </div>
-          <pre>
-            {{ $store.state.profile }}
-          </pre>
         </div>
       </div>
     </section>
