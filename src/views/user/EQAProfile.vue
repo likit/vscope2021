@@ -5,6 +5,18 @@
       <div class="columns">
         <div class="column is-one-third is-offset-4 box">
           <h1 class="title has-text-centered">EQA Profile</h1>
+          <b-field label="คำนำหน้า">
+            <b-input v-model="profile.title"></b-input>
+          </b-field>
+          <b-field label="ชื่อ">
+            <b-input v-model="profile.firstname"></b-input>
+          </b-field>
+          <b-field label="นามสกุล">
+            <b-input v-model="profile.lastname"></b-input>
+          </b-field>
+          <b-field label="ตำแหน่ง">
+            <b-input v-model="profile.position"></b-input>
+          </b-field>
           <b-field label="ห้องปฏิบัติการ">
             <b-input v-model="profile.lab"></b-input>
           </b-field>
@@ -15,6 +27,9 @@
             <button class="button is-light" @click="$router.push({ name: 'MainPage' })">Cancel</button>
             <button class="button is-success" @click="save">Save</button>
           </div>
+          <pre>
+            {{ $store.state.profile }}
+          </pre>
         </div>
       </div>
     </section>
@@ -31,6 +46,9 @@ export default {
   data () {
     return {
       profile: {
+        firstname: null,
+        lastname: null,
+        position: null,
         email: this.$store.state.user.email,
         affiliation: null,
         lab: null,
@@ -45,6 +63,7 @@ export default {
           .get().then(snapshot=>{
         if (snapshot.docs.length > 0) {
           db.collection('eqa_profile').doc(snapshot.docs[0].id).update(self.profile).then(()=>{
+            self.$store.dispatch('setProfile', self.profile)
             self.$buefy.toast.open({
               message: "Data has been saved",
               type: "is-success"
@@ -57,6 +76,7 @@ export default {
           })
         } else {
           db.collection('eqa_profile').add(self.profile).then(()=>{
+            self.$store.dispatch('setProfile', self.profile)
             self.$buefy.toast.open({
               message: "Data has been added",
               type: "is-success"
@@ -79,6 +99,10 @@ export default {
           let data = snapshot.docs[0].data()
           self.profile.affiliation = data.affiliation
           self.profile.lab = data.lab
+          self.profile.firstname = data.firstname
+          self.profile.lastname = data.lastname
+          self.profile.position = data.position
+          self.profile.title = data.title
         }
       })
     }
