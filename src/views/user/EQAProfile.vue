@@ -5,6 +5,9 @@
       <div class="columns">
         <div class="column is-one-third is-offset-4 box">
           <h1 class="title has-text-centered">EQA Profile</h1>
+          <b-field label="E-mail" type="is-danger">
+            <b-input v-model="$store.state.user.email" readonly="true"></b-input>
+          </b-field>
           <b-field label="คำนำหน้า">
             <b-input v-model="profile.title"></b-input>
           </b-field>
