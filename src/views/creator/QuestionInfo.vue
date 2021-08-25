@@ -56,9 +56,21 @@
                     <span>ลบเข็มชี้</span>
                   </button>
                 </div>
-                <b-field label="วิดีโอลิงค์">
-                  <b-input v-model="videoLink" type="textarea" placeholder="YouTube video embed link"></b-input>
-                </b-field>
+                <div class="notification is-white">
+                  <b-field label="วิดีโอลิงค์">
+                    <b-input v-model="videoLink"
+                             type="textarea"
+                             placeholder="YouTube embed code">
+                    </b-input>
+                  </b-field>
+                  <router-link :to="{ name: 'VideoList' }"
+                               class="button is-light is-info">
+                    <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                    </span>
+                    <span>browse</span>
+                  </router-link>
+                </div>
                 <div class="notification is-light is-warning">
                   <h1 class="title is-size-5">ตัวเลือก</h1>
                   <b-field>

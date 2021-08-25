@@ -43,9 +43,9 @@
                     <div class="buttons">
                       <router-link class="button is-info is-outlined"
                                    :to="{ name: 'MediaBrowser', params: { questionId: questionId }}">
-              <span class="icon">
-                <i class="far fa-image"></i>
-              </span>
+                        <span class="icon">
+                          <i class="far fa-image"></i>
+                        </span>
                         <span>เลือกรูปภาพ</span>
                       </router-link>
                       <button class="button is-outlined is-danger" :disabled="media === null" @click="removeMedia">
@@ -68,9 +68,20 @@
                       <span>ลบเข็มชี้</span>
                     </button>
                   </div>
-                  <b-field label="วิดีโอลิงค์">
-                    <b-input v-model="question.videoLink" type="textarea" placeholder="YouTube video link"></b-input>
-                  </b-field>
+                  <div class="notification is-white">
+                    <b-field label="วิดีโอลิงค์">
+                      <b-input v-model="question.videoLink"
+                               type="textarea"
+                               placeholder="YouTube embed code"></b-input>
+                    </b-field>
+                    <router-link :to="{ name: 'VideoList' }"
+                                 class="button is-light is-info">
+                    <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                    </span>
+                      <span>browse</span>
+                    </router-link>
+                  </div>
                   <div class="notification is-light is-warning">
                     <h1 class="title is-size-5">ตัวเลือกคำตอบ</h1>
                     <b-field>
@@ -269,14 +280,14 @@ export default {
         })
       }
     },
-    deleteData () {
+    deleteData() {
       const self = this
       this.$buefy.dialog.confirm({
         title: "รายการลบแล้วไม่สามารถกู้คืนได้",
         message: 'ท่านต้องการลบรายการนี้หรือไม่',
         type: 'is-danger',
-        onConfirm: ()=>{
-          db.collection('questions').doc(this.questionId).delete().then(()=>{
+        onConfirm: () => {
+          db.collection('questions').doc(this.questionId).delete().then(() => {
             self.$buefy.toast.open({
               message: "ลบรายการเรียบร้อย",
               type: "is-success",
@@ -286,7 +297,7 @@ export default {
         }
       })
     },
-    removePin () {
+    removePin() {
       this.question.x = null
       this.question.y = null
       this.stage.removeChild(this.pin)

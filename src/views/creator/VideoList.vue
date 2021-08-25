@@ -5,11 +5,14 @@
       <div class="columns">
         <div class="column">
           <b-table :data="media" :loading="isLoading">
-            <b-table-column field="data.fileUrl" label="ตัวอย่าง" v-slot="props">
+            <b-table-column field="data.code" label="ตัวอย่าง" v-slot="props">
               <span v-html="props.row.data.code"></span>
             </b-table-column>
-            <b-table-column field="data.name" label="คำอธิบาย" v-slot="props">
+            <b-table-column field="data.description" label="คำอธิบาย" v-slot="props">
               {{ props.row.data.description }}
+            </b-table-column>
+            <b-table-column field="data.code" label="Embed Code" v-slot="props">
+              {{ props.row.data.code }}
             </b-table-column>
             <b-table-column field="data.tags" label="ป้าย" v-slot="props">
               <b-taglist>
