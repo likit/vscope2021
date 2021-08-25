@@ -68,6 +68,9 @@
                       <span>ลบเข็มชี้</span>
                     </button>
                   </div>
+                  <b-field label="วิดีโอลิงค์">
+                    <b-input v-model="question.videoLink" type="textarea" placeholder="YouTube video link"></b-input>
+                  </b-field>
                   <div class="notification is-light is-warning">
                     <h1 class="title is-size-5">ตัวเลือกคำตอบ</h1>
                     <b-field>

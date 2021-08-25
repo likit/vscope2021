@@ -15,17 +15,18 @@
             </span>
             <span>{{ question.updatedAt.toLocaleString() }}</span>
           </h2>
-          <pre>
-            {{ answers }}
-          </pre>
         </div>
       </div>
       <div class="columns">
         <div class="column">
           <div class="tile is-ancestor">
             <div class="tile">
-              <div class="tile is-parent">
-                <div class="tile is-child notification is-light">
+              <div class="tile is-parent is-vertical">
+                <div class="tile is-child">
+                  <span v-if="question.videoLink" v-html="question.videoLink"></span>
+                </div>
+                <div class="tile is-child notification is-light"
+                     v-if="question.x && question.y">
                   <canvas ref="imageCanvasEdit" width="800" height="800"></canvas>
                 </div>
               </div>

@@ -56,6 +56,9 @@
                     <span>ลบเข็มชี้</span>
                   </button>
                 </div>
+                <b-field label="วิดีโอลิงค์">
+                  <b-input v-model="videoLink" type="textarea" placeholder="YouTube video embed link"></b-input>
+                </b-field>
                 <div class="notification is-light is-warning">
                   <h1 class="title is-size-5">ตัวเลือก</h1>
                   <b-field>
@@ -127,6 +130,7 @@ export default {
       point: 0,
       title: null,
       pin: null,
+      videoLink: null,
     }
   },
   mounted() {
@@ -191,6 +195,7 @@ export default {
           choices: this.choices,
           x: this.x,
           y: this.y,
+          videoLink: this.videoLink,
           point: this.point,
           creator: auth.currentUser.email,
           updatedAt: new Date()
