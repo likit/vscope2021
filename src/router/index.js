@@ -94,6 +94,24 @@ const routes = [
         component: () => import('../views/creator/ProgramInfo.vue')
     },
     {
+        path: '/creator/videos',
+        name: 'VideoList',
+        meta: {
+            title: 'Video List',
+            requiresAuth: true
+        },
+        component: () => import('../views/creator/VideoList')
+    },
+    {
+        path: '/creator/videos/upload',
+        name: 'VideoUpload',
+        meta: {
+            title: 'Video Upload',
+            requiresAuth: true
+        },
+        component: () => import('../views/creator/VideoUpload')
+    },
+    {
         path: '/creator/media',
         name: 'MediaList',
         meta: {

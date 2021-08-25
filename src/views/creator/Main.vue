@@ -19,7 +19,13 @@
             <span class="panel-icon">
               <i class="far fa-file-image"></i>
             </span>
-            Media
+            Photos
+          </router-link>
+          <router-link class="panel-block" :to="{ name: 'VideoList' }">
+            <span class="panel-icon">
+              <i class="fab fa-youtube"></i>
+            </span>
+            Videos
           </router-link>
         </div>
       </div>
