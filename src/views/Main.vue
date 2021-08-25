@@ -1,6 +1,6 @@
 <template>
 <div>
-  <nav-menu v-bind:is-logged-in="isLoggedIn" @logout="isLoggedIn=false"></nav-menu>
+  <nav-menu></nav-menu>
   <section class="section">
     <div class="columns">
       <div class="column has-text-centered">
@@ -62,12 +62,6 @@ export default {
               type: 'is-danger'
             })
           });
-    }
-  },
-  mounted() {
-    if (auth.currentUser) {
-      this.displayName = auth.currentUser.displayName
-      this.isLoggedIn = true
     }
   }
 }
