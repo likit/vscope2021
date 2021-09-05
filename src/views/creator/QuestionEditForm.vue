@@ -24,6 +24,7 @@
               <div class="tile is-parent">
                 <div class="tile is-child notification is-light">
                   <canvas ref="imageCanvasEdit" width="800" height="800"></canvas>
+                  <video :src="video.fileUrl" v-if="video.fileUrl" controls></video>
                 </div>
               </div>
               <div class="tile is-parent">
@@ -69,18 +70,23 @@
                     </button>
                   </div>
                   <div class="notification is-white">
-                    <b-field label="วิดีโอลิงค์">
-                      <b-input v-model="question.videoLink"
-                               type="textarea"
-                               placeholder="YouTube embed code"></b-input>
-                    </b-field>
-                    <router-link :to="{ name: 'VideoList' }"
-                                 class="button is-light is-info">
-                    <span class="icon">
-                      <i class="fab fa-youtube"></i>
-                    </span>
-                      <span>browse</span>
-                    </router-link>
+                    <h1 class="title is-size-5">ใช้วิดีโอประกอบ</h1>
+                    <p class="notification" v-if="video">ชื่อ {{ video.name }}</p>
+                    <div class="buttons">
+                      <router-link class="button is-info is-outlined"
+                                   :to="{ name: 'VideoBrowser', params: { questionId: questionId }}">
+                        <span class="icon">
+                          <i class="far fa-image"></i>
+                        </span>
+                        <span>เลือกวิดีโอ</span>
+                      </router-link>
+                      <button class="button is-outlined is-danger" :disabled="video === null" @click="removeVideo">
+                        <span class="icon">
+                          <i class="far fa-trash-alt"></i>
+                        </span>
+                        <span>ลบรูปวิดีโอ</span>
+                      </button>
+                    </div>
                   </div>
                   <div class="notification is-light is-warning">
                     <h1 class="title is-size-5">ตัวเลือกคำตอบ</h1>
@@ -158,7 +164,8 @@ export default {
       question: {
         choices: [],
       },
-      media: null,
+      media: {},
+      video: {},
       queue: null,
       stage: null,
       choice: null,
@@ -174,9 +181,6 @@ export default {
   },
   mounted() {
     const self = this
-    if (auth.currentUser) {
-      this.isLoggedIn = true
-    }
     this.questionId = this.$route.params.questionId
     this.stage = new this.createjs.Stage(this.$refs.imageCanvasEdit);
     this.queue = new this.createjs.LoadQueue(false, null, true);
@@ -186,6 +190,16 @@ export default {
         self.question = snapshot.data()
         self.choice = self.question.answer
         self.question.updatedAt = self.question.updatedAt.toDate()
+        if (self.$route.params.videoId) {
+          self.question.videoId = self.$route.params.videoId
+        }
+        if (self.question.videoId) {
+          db.collection('video').doc(self.question.videoId).get().then((snapshot) => {
+            if (snapshot.exists) {
+              self.video = snapshot.data()
+            }
+          })
+        }
         if (self.$route.params.mediaId) {
           self.question.mediaId = self.$route.params.mediaId
         }
@@ -232,6 +246,10 @@ export default {
       this.stage.removeChild(this.bmp)
       this.stage.removeChild(this.pin)
       this.stage.update()
+    },
+    removeVideo() {
+      this.video = null
+      this.question.videoId = null
     },
     saveData() {
       if (this.question.title) {

@@ -4,14 +4,15 @@
     <section class="section">
       <div class="columns">
         <div class="column">
+          <p>{{ $route.params.sessionId }}</p>
           <b-table :data="media" :loading="isLoading">
-            <b-table-column field="data.code" label="ตัวอย่าง" v-slot="props">
+            <b-table-column field="data.fileUrl" label="ตัวอย่าง" v-slot="props">
               <video :src="props.row.data.fileUrl" controls width="320"></video>
             </b-table-column>
-            <b-table-column field="data.description" label="ชื่อวิดีโอ" v-slot="props">
+            <b-table-column field="data.name" label="ชื่อ" v-slot="props">
               {{ props.row.data.name }}
             </b-table-column>
-            <b-table-column field="data.description" label="คำอธิบาย" v-slot="props">
+            <b-table-column field="data.note" label="คำอธิบาย" v-slot="props">
               {{ props.row.data.note }}
             </b-table-column>
             <b-table-column field="data.tags" label="ป้าย" v-slot="props">
@@ -26,13 +27,23 @@
               {{ props.row.data.uploaded_at.toDate().toLocaleString() }}
             </b-table-column>
             <b-table-column v-slot="props">
-              <router-link class="button is-light is-rounded"
-                           v-if="props.row.data.creator==$store.state.user.email"
-                           :to="{ name: 'VideoUpload', params: { mediaId: props.row.id }}">
-              <span class="icon">
-                <i class="fas fa-pencil-alt"></i>
-              </span>
-                <span>edit</span>
+              <router-link class="button is-light is-rounded" v-if="$route.params.questionId"
+                           :to="{
+                           name: 'QuestionEditForm',
+                           params: { videoId: props.row.id, questionId: $route.params.questionId }}">
+            <span class="icon">
+              <i class="fas fa-pencil-alt"></i>
+            </span>
+                <span>use</span>
+              </router-link>
+              <router-link class="button is-light is-rounded" v-else
+                           :to="{
+                           name: 'QuestionInfo',
+                           params: { videoId: props.row.id, sessionId: $route.params.sessionId }}">
+            <span class="icon">
+              <i class="fas fa-pencil-alt"></i>
+            </span>
+                <span>use</span>
               </router-link>
             </b-table-column>
           </b-table>
@@ -42,46 +53,49 @@
         <div class="column has-text-centered">
           <div class="buttons is-centered">
             <button class="button is-light" @click="$router.back()">
-            <span class="icon">
-              <i class="fas fa-chevron-left"></i>
-            </span>
+          <span class="icon">
+            <i class="fas fa-chevron-left"></i>
+          </span>
               <span>Back</span>
             </button>
-            <router-link :to="{ name: 'VideoUpload' }" class="button is-primary">
-            <span class="icon">
-              <i class="fas fa-plus-circle"></i>
-            </span>
-              <span>Upload Video</span>
+            <router-link :to="{ name: 'MediaUpload' }" class="button is-primary">
+          <span class="icon">
+            <i class="fas fa-plus-circle"></i>
+          </span>
+              <span>Upload Media</span>
             </router-link>
           </div>
         </div>
       </div>
     </section>
   </div>
+
 </template>
 
 <script>
 import NavMenu from "../../components/navMenu";
-import {db} from "../../firebase";
+import {auth, db} from "../../firebase";
 
 export default {
-  name: "VideoList",
+  name: "VideoBrowser",
   data() {
     return {
       isLoading: true,
       isLoggedIn: false,
       user: null,
-      media: [],
-      videoLink: null,
+      media: []
     }
   },
-  methods: {},
   components: {NavMenu},
   mounted() {
     const self = this
+    if (auth.currentUser) {
+      this.isLoggedIn = true
+      self.user = auth.currentUser
+    }
     db.collection('video')
-        .get().then((snapshot) => {
-      snapshot.docs.forEach((d) => {
+        .get().then((snapshot)=>{
+      snapshot.docs.forEach((d)=>{
         self.media.push({
           id: d.id,
           data: d.data()

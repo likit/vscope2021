@@ -1,22 +1,30 @@
 <template>
   <div>
-    <nav-menu></nav-menu>
+    <nav-menu :is-logged-in="isLoggedIn" @logout="isLoggedIn=false"></nav-menu>
     <section class="section">
       <div class="columns">
         <div class="column">
           <h1 class="title has-text-centered">Video Upload</h1>
         </div>
       </div>
-      <pre>
-        {{ $route.params.mediaId }}
-      </pre>
       <div class="columns">
         <div class="column is-one-third is-offset-4 box">
-          <b-field label="คำอธิบาย">
-            <b-input type="textarea" v-model="description" maxlength="200"></b-input>
+          <b-field label="ชื่อ">
+            <b-input v-model="name"></b-input>
           </b-field>
-          <b-field label="Embed Code">
-            <b-input type="textarea" v-model="code"></b-input>
+          <b-field label="คำอธิบาย">
+            <b-input type="textarea" v-model="note" maxlength="200"></b-input>
+          </b-field>
+          <b-field class="file is-primary" :class="{'has-name': !!file}">
+            <b-upload v-model="file" class="file-label">
+            <span class="file-cta">
+                <b-icon class="file-icon" icon="upload"></b-icon>
+                <span class="file-label">คลิกเพื่ออัพโหลด</span>
+            </span>
+              <span class="file-name" v-if="file">
+                {{ file.name }}
+            </span>
+            </b-upload>
           </b-field>
           <b-field label="เพิ่มป้าย (tags) สำหรับจัดกลุ่ม" message="กด enter เพื่อเพิ่มป้ายใหม่">
             <b-taginput
@@ -51,42 +59,57 @@
 
 <script>
 import NavMenu from "../../components/navMenu";
-import {db} from "../../firebase";
+import {db,auth} from "../../firebase";
+import {storage} from "@/firebase";
+
+let storageRef = storage.ref()
 
 export default {
-  name: "MediaUpload",
+  name: "VideoUpload",
   data() {
     return {
+      isLoggedIn: false,
       tags: [],
       name: null,
-      code: null,
-      description: null,
+      note: null,
       allTags: [],
+      mediaRef: null,
+      file: null,
+      fileUrl: null,
+      mediaType: 'video',
+      types: ['video'],
+      mediaId: null,
+      uploader: null,
+      uploaded_at: null
     }
   },
   components: {NavMenu},
   mounted() {
     let self = this
+    if (auth.currentUser) {
+      this.isLoggedIn = true
+    }
     db.collection('tags')
         .where('group', '==', 'media')
-        .get().then((snapshot) => {
-      snapshot.forEach((d) => {
-        d.data().tags.forEach((t) => {
+        .get().then((snapshot)=>{
+      snapshot.forEach((d)=>{
+        d.data().tags.forEach((t)=>{
           self.allTags.push(t)
         })
       })
     })
     if (self.$route.params.mediaId) {
       self.mediaId = self.$route.params.mediaId
-      db.collection('videos').doc(self.mediaId).get().then((snapshot) => {
+      db.collection('video').doc(self.mediaId).get().then((snapshot)=>{
         if (snapshot.exists) {
           let data = snapshot.data()
           self.fileUrl = data.fileUrl
-          self.description = data.description
-          self.code = data.code
+          self.name = data.name
+          self.note = data.note
           self.tags = data.tags
-          self.creator = data.creator
-          self.createdAt = data.createdAt
+          self.uploader = data.uploader
+          self.uploaded_at = data.uploaded_at
+          self.mediaType = data.type_
         }
       })
     }
@@ -97,35 +120,74 @@ export default {
         return option.toLowerCase().indexOf(text.toLowerCase()) >= 0
       })
     },
-    saveData() {
+    saveData () {
       let self = this
-      if (self.$route.params.mediaId == null) {
-        db.collection('videos').add({
-          description: self.description,
-          code: self.code,
-          creator: self.$store.state.user.email,
-          createdAt: new Date(),
-          tags: self.tags,
-        }).then(() => {
-          self.$buefy.toast.open({
-            message: 'Added Successfully',
-            type: 'is-success'
+      if (self.file) {
+        if (self.mediaId == null) {
+          storageRef.child('video/' + self.file.name).put(self.file).then(()=>{
+            self.mediaFileRef = storageRef.child('video/' + self.file.name)
+            self.mediaFileRef.getDownloadURL().then((url)=>{
+              self.mediaUrl = url
+              if (self.mediaId == null) {
+                db.collection('video').add({
+                  name: self.name,
+                  note: self.note,
+                  type_: self.mediaType,
+                  uploader: auth.currentUser.email,
+                  uploaded_at: new Date(),
+                  tags: self.tags,
+                  fileUrl: self.mediaUrl
+                }).then(()=>{
+                  self.$buefy.toast.open({
+                    message: 'Uploaded successfully',
+                    type: 'is-success'
+                  })
+                  self.$router.push({ name: 'VideoList' })
+                })
+              }
+            })
+          }).catch((error)=>{
+            console.log(error)
           })
-          self.$router.push({name: 'VideoList'})
-        })
+        } else {
+          storageRef.child('video/' + self.file.name).put(self.file).then(()=> {
+            self.mediaFileRef = storageRef.child('video/' + self.file.name)
+            self.mediaFileRef.getDownloadURL().then((url) => {
+              self.mediaUrl = url
+              db.collection('video').doc(self.mediaId).update({
+                name: self.name,
+                note: self.note,
+                type_: self.mediaType,
+                uploader: auth.currentUser.email,
+                uploaded_at: new Date(),
+                tags: self.tags,
+                fileUrl: self.mediaUrl
+              }).then(()=>{
+                self.$buefy.toast.open({
+                  message: 'Uploaded successfully',
+                  type: 'is-success'
+                })
+                self.$router.push({ name: 'MediaList' })
+              })
+            })
+          })
+        }
       } else {
-        db.collection('videos').doc(self.$route.params.mediaId).update({
-          description: self.description,
-          code: self.code,
-          createdAt: new Date(),
-          tags: self.tags,
-        }).then(() => {
-          self.$buefy.toast.open({
-            message: 'Updated Successfully',
-            type: 'is-success'
+        if (self.mediaId) {
+          db.collection('video').doc(self.mediaId).update({
+            name: self.name,
+            note: self.note,
+            type_: self.mediaType,
+            uploaded_at: new Date(),
+            tags: self.tags,
+          }).then(()=>{
+            self.$buefy.toast.open({
+              message: 'Uploaded successfully',
+              type: 'is-success'
+            })
+            self.$router.push({ name: 'VideoList' })
           })
-          self.$router.push({name: 'VideoList'})
-        })
+        }
       }
     }
   }

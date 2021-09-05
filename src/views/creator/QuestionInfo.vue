@@ -15,6 +15,7 @@
           <div class="tile">
             <div class="tile is-parent">
               <div class="tile is-child notification">
+                <video :src="video.fileUrl" v-if="video.fileUrl" controls></video>
                 <canvas ref="imageCanvas" width="800" height="800"></canvas>
               </div>
             </div>
@@ -57,19 +58,23 @@
                   </button>
                 </div>
                 <div class="notification is-white">
-                  <b-field label="วิดีโอลิงค์">
-                    <b-input v-model="videoLink"
-                             type="textarea"
-                             placeholder="YouTube embed code">
-                    </b-input>
-                  </b-field>
-                  <router-link :to="{ name: 'VideoList' }"
-                               class="button is-light is-info">
-                    <span class="icon">
-                      <i class="fab fa-youtube"></i>
-                    </span>
-                    <span>browse</span>
-                  </router-link>
+                  <h1 class="title is-size-5">ใช้วิดีโอประกอบ</h1>
+                  <p class="notification" v-if="video">ชื่อ {{ video.name }}</p>
+                  <div class="buttons">
+                    <router-link class="button is-info is-outlined"
+                                 :to="{ name: 'VideoBrowser', params: { sessionId: sessionId }}">
+                        <span class="icon">
+                          <i class="far fa-image"></i>
+                        </span>
+                      <span>เลือกวิดีโอ</span>
+                    </router-link>
+                    <button class="button is-outlined is-danger" :disabled="video === null" @click="removeVideo">
+                        <span class="icon">
+                          <i class="far fa-trash-alt"></i>
+                        </span>
+                      <span>ลบรูปวิดีโอ</span>
+                    </button>
+                  </div>
                 </div>
                 <div class="notification is-light is-warning">
                   <h1 class="title is-size-5">ตัวเลือก</h1>
@@ -130,6 +135,7 @@ export default {
       sessionId: null,
       mediaId: null,
       media: null,
+      video: {},
       queue: null,
       stage: null,
       x: null,
@@ -150,11 +156,20 @@ export default {
     if (auth.currentUser) {
       this.isLoggedIn = true
     }
+    // TODO: fix this, both media and video cannot be added at the same time
     this.sessionId = this.$route.params.sessionId
     this.mediaId = this.$route.params.mediaId
+    this.videoId = this.$route.params.videoId
     this.stage = new this.createjs.Stage(this.$refs.imageCanvas);
     this.queue = new this.createjs.LoadQueue(false, null, true);
     this.queue.on('complete', this.handleComplete)
+    if (this.videoId) {
+      db.collection('video').doc(this.videoId).get().then((snapshot) => {
+        if (snapshot.exists) {
+          self.video = snapshot.data()
+        }
+      })
+    }
     if (this.mediaId) {
       db.collection('media').doc(this.mediaId).get().then((snapshot)=>{
         if (snapshot.exists) {
@@ -188,6 +203,10 @@ export default {
       this.choice = null
       this.answer = null
     },
+    removeVideo () {
+      this.video = {}
+      this.videoId = null
+    },
     removeMedia () {
       this.media = null
       this.mediaId = null
@@ -203,11 +222,11 @@ export default {
           title: this.title,
           sessionId: this.sessionId,
           mediaId: this.mediaId || null,
+          videoId: this.videoId || null,
           answer: this.answer,
           choices: this.choices,
           x: this.x,
           y: this.y,
-          videoLink: this.videoLink,
           point: this.point,
           creator: auth.currentUser.email,
           updatedAt: new Date()

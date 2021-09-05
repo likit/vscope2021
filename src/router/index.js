@@ -112,6 +112,15 @@ const routes = [
         component: () => import('../views/creator/VideoUpload')
     },
     {
+        path: '/creator/video-browser',
+        name: 'VideoBrowser',
+        meta: {
+            title: 'Video Browser',
+            requiresAuth: true
+        },
+        component: () => import('../views/creator/VideoBrowser')
+    },
+    {
         path: '/creator/media',
         name: 'MediaList',
         meta: {
