@@ -23,10 +23,9 @@
             <div class="tile">
               <div class="tile is-parent is-vertical">
                 <div class="tile is-child">
-                  <span v-if="question.videoLink" v-html="question.videoLink"></span>
+                  <video :src="video.fileUrl" v-if="video.fileUrl" controls></video>
                 </div>
-                <div class="tile is-child notification is-light"
-                     v-if="question.x && question.y">
+                <div class="tile is-child notification is-light" v-if="question.mediaId">
                   <canvas ref="imageCanvasEdit" width="800" height="800"></canvas>
                 </div>
               </div>
@@ -76,7 +75,7 @@
 
 <script>
 import NavMenu from "../../components/navMenu";
-import {auth, db} from "../../firebase";
+import {db} from "../../firebase";
 import {mapState} from "vuex";
 
 export default {
@@ -91,7 +90,8 @@ export default {
         choices: [],
       },
       answer: null,
-      media: null,
+      media: {},
+      video: {},
       queue: null,
       stage: null,
       bmp: null,
@@ -116,9 +116,6 @@ export default {
     }
   },
   mounted() {
-    if (auth.currentUser) {
-      this.isLoggedIn = true
-    }
     this.loadData()
   },
   methods: {
@@ -157,6 +154,9 @@ export default {
       self.questionNo = parseInt(self.$route.params.questionNo)
       self.question = self.questions[self.questionNo].data
       self.questionId = self.questions[self.questionNo].id
+      this.stage = new this.createjs.Stage(this.$refs.imageCanvasEdit);
+      this.queue = new this.createjs.LoadQueue(false, null, true);
+      this.queue.on('complete', this.handleComplete)
       if (self.answers[self.questionNo] !== undefined) {
         self.answer = self.answers[self.questionNo].answer
       }
@@ -165,8 +165,12 @@ export default {
       } catch (err) {
         console.log('pass')
       }
-      if (self.$route.params.mediaId) {
-        self.question.mediaId = self.$route.params.mediaId
+      if (self.question.videoId) {
+        db.collection('video').doc(self.question.videoId).get().then((snapshot) => {
+          if (snapshot.exists) {
+            self.video = snapshot.data()
+          }
+        })
       }
       if (self.question.mediaId) {
         db.collection('media').doc(self.question.mediaId).get().then((snapshot) => {
@@ -189,9 +193,6 @@ export default {
           }
         })
       }
-      this.stage = new this.createjs.Stage(this.$refs.imageCanvasEdit);
-      this.queue = new this.createjs.LoadQueue(false, null, true);
-      this.queue.on('complete', this.handleComplete)
     },
     prevQuestion() {
       const self = this

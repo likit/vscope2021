@@ -14,6 +14,22 @@
           </div>
           <hr>
           <h1 class="title has-text-centered">รายการคำถาม</h1>
+          <div class="buttons is-centered">
+            <button class="button is-light"
+                    @click="$router.push({ name: 'UserSessionList', params: { lessonId: session.lessonId, programId: $route.params.programId } })">
+              <span class="icon">
+                <i class="fas fa-chevron-left"></i>
+              </span>
+              <span>Back</span>
+            </button>
+            <button class="button is-info"
+                    @click="start">
+              <span class="icon">
+                <i class="fas fa-play-circle"></i>
+              </span>
+              <span>Start</span>
+            </button>
+          </div>
           <b-table :data="questions" :loading="isLoading">
             <b-table-column field="no" label="ลำดับ" v-slot="props">
               {{ props.row.data.no }}
@@ -159,7 +175,6 @@ export default {
       self.isLoading = false
     })
     self.$store.dispatch('loadQuestion', this.sessionId)
-    // TODO: figure how to sort the question by no.
   }
 }
 </script>
