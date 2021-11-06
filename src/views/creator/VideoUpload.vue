@@ -15,7 +15,7 @@
           <b-field label="คำอธิบาย">
             <b-input type="textarea" v-model="note" maxlength="200"></b-input>
           </b-field>
-          <b-field class="file is-primary" :class="{'has-name': !!file}">
+          <b-field v-if="mediaId === null" class="file is-primary" :class="{'has-name': !!file}">
             <b-upload v-model="file" class="file-label">
             <span class="file-cta">
                 <b-icon class="file-icon" icon="upload"></b-icon>
@@ -44,12 +44,18 @@
               </span>
               <span>Cancel</span>
             </button>
-            <button class="button is-success" @click="saveData">
+            <button v-if="mediaId !== null" class="button is-danger" @click="remove">
+              <span class="icon">
+                <i class="far fa-trash-alt"></i>
+              </span>
+            </button>
+            <b-button :disabled="!isFormValid" :loading="isLoading"
+                      class="button is-success" @click="saveData">
               <span class="icon">
                 <i class="far fa-save"></i>
               </span>
               <span>Submit</span>
-            </button>
+            </b-button>
           </div>
         </div>
       </div>
@@ -61,6 +67,7 @@
 import NavMenu from "../../components/navMenu";
 import {db,auth} from "../../firebase";
 import {storage} from "@/firebase";
+import { v4 as uuidv4 } from 'uuid'
 
 let storageRef = storage.ref()
 
@@ -68,6 +75,7 @@ export default {
   name: "VideoUpload",
   data() {
     return {
+      isLoading: false,
       isLoggedIn: false,
       tags: [],
       name: null,
@@ -81,6 +89,15 @@ export default {
       mediaId: null,
       uploader: null,
       uploaded_at: null
+    }
+  },
+  computed: {
+    isFormValid () {
+      if (this.mediaId) {
+        return this.name !== ''
+      } else {
+        return (this.name !== '') && (this.file !== null)
+      }
     }
   },
   components: {NavMenu},
@@ -120,12 +137,40 @@ export default {
         return option.toLowerCase().indexOf(text.toLowerCase()) >= 0
       })
     },
+    remove () {
+      this.$buefy.dialog.confirm({
+        title: 'You really want to delete this video?',
+        message: 'The deleted video cannot be recovered.',
+        cancelText: 'Cancel',
+        confirmText: 'Confirm',
+        type: 'is-danger',
+        onConfirm: () => {
+          let fileRef = storage.refFromURL(this.fileUrl)
+          fileRef.delete().then(()=>{
+            db.collection('video').doc(this.mediaId).delete().then(()=>{
+              this.$buefy.toast.open({
+                message: 'The video has been removed',
+                type: 'is-success'
+              })
+              this.$router.back()
+            })
+          }).catch((e) => {
+            this.$buefy.toast.open({
+              message: e.toString(),
+              type: 'is-danger'
+            })
+          })
+        }
+      })
+    },
     saveData () {
       let self = this
+      this.isLoading = true
       if (self.file) {
+        let newFilename = uuidv4()
         if (self.mediaId == null) {
-          storageRef.child('video/' + self.file.name).put(self.file).then(()=>{
-            self.mediaFileRef = storageRef.child('video/' + self.file.name)
+          storageRef.child('video/' + newFilename).put(self.file).then(()=>{
+            self.mediaFileRef = storageRef.child('video/' + newFilename)
             self.mediaFileRef.getDownloadURL().then((url)=>{
               self.mediaUrl = url
               if (self.mediaId == null) {
