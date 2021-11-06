@@ -57,12 +57,18 @@
               </span>
               <span>Cancel</span>
             </button>
-            <button class="button is-success" @click="saveData">
+            <b-button v-if="mediaId" class="button is-danger" @click="remove">
+              <span class="icon">
+                <i class="far fa-trash-alt"></i>
+              </span>
+            </b-button>
+            <b-button :loading="isLoading" :disabled="!isFormValid"
+                      class="button is-success" @click="saveData">
               <span class="icon">
                 <i class="far fa-save"></i>
               </span>
               <span>Submit</span>
-            </button>
+            </b-button>
           </div>
         </div>
       </div>
@@ -74,6 +80,7 @@
 import NavMenu from "../../components/navMenu";
 import {db,auth} from "../../firebase";
 import {storage} from "@/firebase";
+import {v4 as uuidv4} from 'uuid'
 
 let storageRef = storage.ref()
 
@@ -81,6 +88,7 @@ export default {
   name: "MediaUpload",
   data() {
     return {
+      isLoading: false,
       isLoggedIn: false,
       tags: [],
       name: null,
@@ -94,6 +102,15 @@ export default {
       mediaId: null,
       uploader: null,
       uploaded_at: null
+    }
+  },
+  computed: {
+    isFormValid () {
+      if (this.mediaId !== null) {
+        return this.name !== ''
+      } else {
+        return (this.name !== '') && (this.file !== null)
+      }
     }
   },
   components: {NavMenu},
@@ -133,12 +150,40 @@ export default {
         return option.toLowerCase().indexOf(text.toLowerCase()) >= 0
       })
     },
+    remove () {
+      this.$buefy.dialog.confirm({
+        title: 'You really want to delete this media?',
+        message: 'The deleted media cannot be recovered.',
+        cancelText: 'Cancel',
+        confirmText: 'Confirm',
+        type: 'is-danger',
+        onConfirm: () => {
+          let fileRef = storage.refFromURL(this.fileUrl)
+          fileRef.delete().then(()=>{
+            db.collection('media').doc(this.mediaId).delete().then(()=>{
+              this.$buefy.toast.open({
+                message: 'The media has been removed',
+                type: 'is-success'
+              })
+              this.$router.back()
+            })
+          }).catch((e) => {
+            this.$buefy.toast.open({
+              message: e.toString(),
+              type: 'is-danger'
+            })
+          })
+        }
+      })
+    },
     saveData () {
       let self = this
       if (self.file) {
+        let newFilename = uuidv4()
+        this.isLoading = true
         if (self.mediaId == null) {
-          storageRef.child('media/' + self.file.name).put(self.file).then(()=>{
-            self.mediaFileRef = storageRef.child('media/' + self.file.name)
+          storageRef.child('media/' + newFilename).put(self.file).then(()=>{
+            self.mediaFileRef = storageRef.child('media/' + newFilename)
             self.mediaFileRef.getDownloadURL().then((url)=>{
               self.mediaUrl = url
               if (self.mediaId == null) {
