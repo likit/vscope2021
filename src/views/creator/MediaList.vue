@@ -4,7 +4,7 @@
   <section class="section">
     <div class="columns">
       <div class="column">
-        <b-table :data="media" :loading="isLoading">
+        <b-table :data="media" :loading="isLoading" paginated per-page="5">
           <b-table-column field="data.fileUrl" label="ตัวอย่าง" v-slot="props">
             <b-image :src="props.row.data.fileUrl" ratio="2by1" :alt="props.row.data.name"></b-image>
           </b-table-column>
@@ -19,10 +19,10 @@
               <b-tag v-for="tag in props.row.data.tags" :key="tag" type="is-info is-light">{{ tag }}</b-tag>
             </b-taglist>
           </b-table-column>
-          <b-table-column field="data.uploader" label="อัพโหลดโดย" v-slot="props">
+          <b-table-column field="data.uploader" label="อัพโหลดโดย" v-slot="props" sortable>
             {{ props.row.data.uploader }}
           </b-table-column>
-          <b-table-column field="data.uploaded_at" label="อัพโหลดเมื่อ" v-slot="props">
+          <b-table-column field="data.uploaded_at" label="อัพโหลดเมื่อ" v-slot="props" sortable>
             {{ props.row.data.uploaded_at.toDate().toLocaleString() }}
           </b-table-column>
           <b-table-column v-slot="props">
@@ -82,6 +82,7 @@ export default {
       self.user = auth.currentUser
     }
     db.collection('media')
+        .orderBy('uploaded_at', 'desc')
         .get().then((snapshot)=>{
       snapshot.docs.forEach((d)=>{
         self.media.push({
