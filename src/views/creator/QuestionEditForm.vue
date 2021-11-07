@@ -1,6 +1,6 @@
 <template>
   <div>
-    <nav-menu :is-logged-in="isLoggedIn" @logout="isLoggedIn=false"></nav-menu>
+    <nav-menu></nav-menu>
     <section class="section">
       <div class="columns">
         <div class="column">
@@ -22,9 +22,17 @@
           <div class="tile is-ancestor">
             <div class="tile">
               <div class="tile is-parent">
-                <div class="tile is-child notification is-light">
+                <div class="tile is-child notification is-light" v-if="isMediaMissing === false">
                   <canvas ref="imageCanvasEdit" width="800" height="800"></canvas>
                   <video :src="video.fileUrl" v-if="video.fileUrl" controls></video>
+                </div>
+                <div v-else class="tile is-child notification is-light">
+                  <span class="icon">
+                    <i class="far fa-image"></i>
+                  </span>
+                  <span>
+                    Media is missing...The media might have been removed. Please replace it.
+                  </span>
                 </div>
               </div>
               <div class="tile is-parent">
@@ -159,7 +167,7 @@ export default {
   components: {NavMenu},
   data() {
     return {
-      isLoggedIn: false,
+      isMediaMissing: false,
       questionId: null,
       question: {
         choices: [],
@@ -227,6 +235,8 @@ export default {
                     }
                   ]
               )
+            } else {
+              this.isMediaMissing = true
             }
           })
         }

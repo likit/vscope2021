@@ -25,8 +25,16 @@
                 <div class="tile is-child">
                   <video :src="video.fileUrl" v-if="video.fileUrl" controls></video>
                 </div>
-                <div class="tile is-child notification is-light">
+                <div class="tile is-child notification is-light" v-if="isMediaMissing === false">
                   <canvas id="imageCanvas" ref="imageCanvasEdit" width="800" height="800"></canvas>
+                </div>
+                <div class="tile is-child notification is-light" v-else>
+                  <span class="icon">
+                    <i class="far fa-image"></i>
+                  </span>
+                  <span>
+                    Media is missing...
+                  </span>
                 </div>
                 <b-loading v-model="isMediaLoading" :can-cancel="false"></b-loading>
               </div>
@@ -94,6 +102,7 @@ export default {
     return {
       isLoggedIn: false,
       isMediaLoading: false,
+      isMediaMissing: false,
       questionId: null,
       questionNo: null,
       question: {
@@ -237,6 +246,9 @@ export default {
                   }
                 ]
             )
+          } else {
+            this.isMediaLoading = false
+            this.isMediaMissing = true
           }
         })
       }
