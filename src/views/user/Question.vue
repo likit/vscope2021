@@ -1,6 +1,5 @@
 <template>
   <div>
-    <nav-menu :is-logged-in="isLoggedIn" @logout="isLoggedIn=false"></nav-menu>
     <section class="section">
       <div class="columns">
         <div class="column">
@@ -91,16 +90,13 @@
 </template>
 
 <script>
-import NavMenu from "../../components/navMenu";
 import {db} from "../../firebase";
 import {mapState} from "vuex";
 
 export default {
   name: "UserQuestion",
-  components: {NavMenu},
   data() {
     return {
-      isLoggedIn: false,
       isMediaLoading: false,
       isMediaMissing: false,
       recordId: null,

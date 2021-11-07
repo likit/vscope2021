@@ -17,6 +17,7 @@ const store = new Vuex.Store({
         user: null,
         profile: {},
         sessionId: null,
+        recordId: null,
         questions: [],
         answers: [],
     },
@@ -37,6 +38,9 @@ const store = new Vuex.Store({
         },
         setSessionId(state, Id) {
             state.sessionId = Id
+        },
+        setRecordId(state, Id) {
+            state.recordId = Id
         },
         addQuestion(state, question) {
             state.questions.push(question)
@@ -112,6 +116,9 @@ const store = new Vuex.Store({
         },
         setSessionId({commit}, sessionId) {
             commit('setSessionId', sessionId)
+        },
+        setRecordId({commit}, payload) {
+            commit('setRecordId', payload)
         },
         setProfile({commit}, profile) {
             commit('setProfile', profile)

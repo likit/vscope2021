@@ -27,7 +27,8 @@
               <span class="icon">
                 <i class="fas fa-play-circle"></i>
               </span>
-              <span>Start</span>
+              <span v-if="sessionId === $store.state.sessionId">Resume</span>
+              <span v-else>Start</span>
             </button>
           </div>
           <b-table :data="questions" :loading="isLoading">
@@ -64,7 +65,8 @@
               <span class="icon">
                 <i class="fas fa-play-circle"></i>
               </span>
-              <span>Start</span>
+              <span v-if="sessionId === $store.state.sessionId">Resume</span>
+              <span v-else>Start</span>
             </button>
           </div>
         </div>
@@ -75,7 +77,7 @@
 
 <script>
 import NavMenu from "../../components/navMenu";
-import {auth, db} from "../../firebase";
+import {db} from "../../firebase";
 import {mapState} from "vuex";
 
 export default {
@@ -94,31 +96,25 @@ export default {
   },
   methods: {
     startNew() {
-      const self = this
-      if (self.$store.state.sessionId != null) {
-        db.collection('records')
-            .where('sessionId', '==', self.$store.state.sessionId)
-            .orderBy('start', 'desc')
-            .get().then(snapshot=>{
-              let ref = snapshot.docs[0]
-              db.collection('records').doc(ref.id).update({
-                end: new Date()
-              })
-        })
-      }
+      // end the current session
+      db.collection('records')
+          .doc(this.$store.state.recordId).update({ end: new Date() })
+
+      // create a new record
       db.collection('records').add({
-        email: auth.currentUser.email,
+        email: this.$store.state.user.email,
         start: new Date(),
-        sessionId: self.$route.params.sessionId,
+        sessionId: this.$route.params.sessionId,
         answers: [],
       }).then((recordRef) => {
-        self.$store.dispatch('setSessionId', self.$route.params.sessionId).then(() => {
-          self.$router.push({
+        this.$store.dispatch('setRecordId', recordRef.id)
+        this.$store.dispatch('setSessionId', this.$route.params.sessionId).then(() => {
+          this.$router.push({
             name: 'Question',
             params: {
-              lessonId: self.session.lessonId,
-              programId: self.$route.params.programId,
-              sessionId: self.sessionId,
+              lessonId: this.session.lessonId,
+              programId: this.$route.params.programId,
+              sessionId: this.sessionId,
               recordId: recordRef.id,
               questionNo: '0'
             }
@@ -127,9 +123,8 @@ export default {
       })
     },
     start() {
-      const self = this
-      if (self.$store.state.sessionId != null && self.$store.state.sessionId !== self.sessionId) {
-        self.$buefy.dialog.confirm({
+      if (this.$store.state.sessionId != null && this.$store.state.sessionId !== this.sessionId) {
+        this.$buefy.dialog.confirm({
           message: 'ท่านต้องการสิ้นสุดชุดทดสอบนี้และเริ่มชุดทดสอบใหม่ใช่หรือไม่',
           title: 'End the current session',
           type: 'is-warning',
@@ -137,10 +132,10 @@ export default {
           ariaModal: true,
           cancelText: "ยกเลิก",
           confirmText: "ยืนยัน",
-          onConfirm: self.startNew
+          onConfirm: this.startNew
         })
-      } else if (self.$store.state.sessionId == null) {
-        self.$buefy.dialog.confirm({
+      } else if (this.$store.state.sessionId == null) {
+        this.$buefy.dialog.confirm({
           message: 'ท่านต้องการเริ่มชุดทดสอบใหม่ใช่หรือไม่',
           title: 'Start a new session',
           type: 'is-success',
@@ -148,17 +143,20 @@ export default {
           ariaModal: true,
           cancelText: "ยกเลิก",
           confirmText: "ยืนยัน",
-          onConfirm: self.startNew
+          onConfirm: this.startNew
         })
       } else {
-        self.$router.push({
-          name: 'Question',
-          params: {
-            lessonId: self.session.lessonId,
-            programId: self.$route.params.programId,
-            sessionId: self.sessionId,
-            questionNo: '0'
-          }
+        this.$store.dispatch('setSessionId', this.$route.params.sessionId).then(() => {
+          this.$router.push({
+            name: 'Question',
+            params: {
+              lessonId: this.session.lessonId,
+              programId: this.$route.params.programId,
+              sessionId: this.sessionId,
+              questionNo: '0',
+              recordId: this.$store.state.recordId
+            }
+          })
         })
       }
     }
