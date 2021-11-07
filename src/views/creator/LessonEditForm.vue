@@ -1,18 +1,20 @@
 <template>
 <div>
-  <nav-menu :is-logged-in="isLoggedIn" @logout="isLoggedIn=false"></nav-menu>
+  <nav-menu></nav-menu>
   <section class="section">
     <div class="columns">
       <div class="column is-one-third is-offset-4 box">
         <h1 class="title has-text-centered">
-          New Lesson
+          Lesson Form
         </h1>
-        <p>Program ID: {{ programId }}</p>
-        <b-field label="ชื่อ" type="is-danger" message="required">
+        <b-field label="ชื่อบทเรียน" type="is-danger" message="required">
           <b-input v-model="name"></b-input>
         </b-field>
         <b-field label="วัตถุประสงค์">
           <b-input type="textarea" v-model="objective"></b-input>
+        </b-field>
+        <b-field label="เผยแพร่">
+          <b-switch v-model="published"></b-switch>
         </b-field>
         <div class="buttons is-centered">
           <button class="button is-light" @click="$router.push({ name: 'ProgramInfo', params: { programId: $route.params.programId }})">
@@ -35,7 +37,7 @@
 </template>
 
 <script>
-import {db,auth} from "../../firebase";
+import {db} from "../../firebase";
 import NavMenu from "../../components/navMenu";
 
 export default {
@@ -43,7 +45,7 @@ export default {
   components: {NavMenu},
   data() {
     return {
-      published: null,
+      published: false,
       isLoggedIn: false,
       lessonId: null,
       programId: null,
@@ -52,38 +54,58 @@ export default {
     }
   },
   mounted() {
-    const self = this
-    if (auth.currentUser) {
-      self.isLoggedIn = true
-    }
-    self.programId = this.$route.params.programId
-    self.lessonId = this.$route.params.lessonId
-    if (self.lessonId) {
-      db.collection('lessons').doc(self.lessonId).get().then((snapshot)=>{
+    this.programId = this.$route.params.programId
+    this.lessonId = this.$route.params.lessonId
+    if (this.lessonId) {
+      db.collection('lessons').doc(this.lessonId).get().then((snapshot)=>{
         if (snapshot.exists) {
           let data = snapshot.data()
-          self.name = data.name
-          self.objective = data.objective
-          self.published = data.published || false
+          this.name = data.name
+          this.objective = data.objective
+          this.published = data.published || false
         }
       })
     }
   },
   methods: {
     saveData: function () {
-      const self = this
-      db.collection('lessons').add({
-        programId: self.programId,
-        name: self.name,
-        objective: self.objective,
-        createdAt: new Date()
-      }).then(()=>{
-        self.$buefy.toast.open({
-          message: 'Data saved successfully',
-          type: 'is-success'
+      if (this.lessonId === null) {
+        db.collection('lessons').add({
+          programId: this.programId,
+          name: this.name,
+          published: this.published,
+          objective: this.objective,
+          createdAt: new Date()
+        }).then(()=>{
+          this.$buefy.toast.open({
+            message: 'Data saved successfully',
+            type: 'is-success'
+          })
+          this.$router.push({
+            name: 'ProgramInfo',
+            params: {
+              programId: this.programId
+            }
+          })
         })
-        self.$router.push({ name: 'ProgramInfo', params: { programId: self.programId} })
-      })
+      } else {
+        db.collection('lessons').doc(this.lessonId).update({
+          name: this.name,
+          published: this.published,
+          objective: this.objective
+        }).then(()=>{
+          this.$buefy.toast.open({
+            message: 'Data saved successfully',
+            type: 'is-success'
+          })
+          this.$router.push({
+            name: 'ProgramInfo',
+            params: {
+              programId: this.programId
+            }
+          })
+        })
+      }
     }
   }
 }
