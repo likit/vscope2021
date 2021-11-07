@@ -111,7 +111,7 @@ export default {
         start: new Date(),
         sessionId: self.$route.params.sessionId,
         answers: [],
-      }).then(() => {
+      }).then((recordRef) => {
         self.$store.dispatch('setSessionId', self.$route.params.sessionId).then(() => {
           self.$router.push({
             name: 'Question',
@@ -119,6 +119,7 @@ export default {
               lessonId: self.session.lessonId,
               programId: self.$route.params.programId,
               sessionId: self.sessionId,
+              recordId: recordRef.id,
               questionNo: '0'
             }
           })

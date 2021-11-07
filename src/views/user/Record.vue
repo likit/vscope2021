@@ -9,14 +9,14 @@
       </div>
       <div class="columns">
         <div class="column is-two-thirds is-offset-2">
-          <b-table :data="records">
-            <b-table-column field="id" label="Session ID" v-slot="props">
+          <b-table :data="records" paginated per-page="10">
+            <b-table-column field="id" label="Session ID" sortable v-slot="props">
               {{ sessions[props.row.sessionId] }}
             </b-table-column>
-            <b-table-column field="start" label="Start" v-slot="props">
+            <b-table-column field="start" label="Start" sortable v-slot="props">
               {{ props.row.start.toDate().toLocaleString() }}
             </b-table-column>
-            <b-table-column field="end" label="End" v-slot="props">
+            <b-table-column field="end" label="End" sortable v-slot="props">
               {{ props.row.end != undefined ? props.row.end.toDate().toLocaleString() : "Unfinished" }}
             </b-table-column>
             <b-table-column label="Answers" numeric width="30" v-slot="props">

@@ -103,6 +103,7 @@ export default {
       isLoggedIn: false,
       isMediaLoading: false,
       isMediaMissing: false,
+      recordId: null,
       questionId: null,
       questionNo: null,
       question: {
@@ -180,32 +181,28 @@ export default {
         cancelText: "ยกเลิก",
         confirmText: "ยืนยัน",
         onConfirm: () => {
-          db.collection('records')
-              .where('sessionId', '==', this.$store.state.sessionId)
-              .orderBy('start', 'desc')
-              .get().then(snapshot=>{
-            let ref = snapshot.docs[0]
-            let submittedAt = new Date()
-            db.collection('records').doc(ref.id).update(
-                {
-                  end: submittedAt,
-                  submittedAt: submittedAt
-                }
-            ).then(()=>{
-              this.$buefy.toast.open({
-                message: "Session ended. Your answers were submitted.",
-                type: "is-success"
-              })
-              this.$store.dispatch('setSessionId', null)
-              this.$store.dispatch('clearAnswers')
-              this.$router.push({ name: 'UserProgramList' })
+          let submittedAt = new Date()
+          db.collection('records').doc(this.recordId).update(
+              {
+                answers: this.answers,
+                end: submittedAt,
+                submittedAt: submittedAt
+              }
+          ).then(()=>{
+            this.$buefy.toast.open({
+              message: "ระบบได้บันทึกคำตอบเรียบร้อยแล้ว",
+              type: "is-success"
             })
+            this.$store.dispatch('setSessionId', null)
+            this.$store.dispatch('clearAnswers')
+            this.$router.push({ name: 'UserProgramList' })
           })
         }
       })
     },
     loadData () {
       this.isMediaLoading = true
+      this.recordId = this.$route.params.recordId
       this.questionNo = parseInt(this.$route.params.questionNo)
       this.question = this.questions[this.questionNo].data
       this.questionId = this.questions[this.questionNo].id
@@ -269,19 +266,13 @@ export default {
     },
     nextQuestion() {
       let next = this.questionNo + 1
-      db.collection('records')
-          .where('sessionId', '==', this.$store.state.sessionId)
-          .orderBy('start', 'desc').get().then(snapshot => {
-        if (snapshot.docs.length > 0) {
-          db.collection('records').doc(snapshot.docs[0].id).update({
-            answers: this.answers
-          }).then(() => {
-            this.$buefy.toast.open({
-              message: "บันทึกคำตอบเรียบร้อย",
-              type: "is-success",
-            })
-          })
-        }
+      db.collection('records').doc(this.recordId).update({
+        answers: this.answers
+      }).then(() => {
+        this.$buefy.toast.open({
+          message: "บันทึกคำตอบเรียบร้อย",
+          type: "is-success",
+        })
       })
       if (next < this.questions.length) {
         this.$router.push({
@@ -293,16 +284,15 @@ export default {
         })
       } else {
         this.$store.dispatch('setSessionId', null)
-        this.$buefy.toast.open({
-          message: "จบแบบทดสอบ",
+        this.$buefy.dialog.confirm({
+          title: "End of the session",
+          message: "ท่านทำมาถึงข้อสุดท้ายแล้ว กรุณากดส่งคำตอบเพื่อจบกิจกรรมนี้",
           type: "is-success",
-        })
-        this.$router.push({
-          name: 'UserSessionList',
-          params: {
-            lessonId: this.$route.params.lessonId,
-            programId: this.$route.params.programId,
-          }
+          ariaRole: 'alertdialog',
+          ariaModal: true,
+          cancelText: "ทำต่อ",
+          confirmText: "ส่งคำตอบ",
+          onConfirm: ()=>{ this.submit() }
         })
       }
     },
