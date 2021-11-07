@@ -4,7 +4,7 @@
   <section class="section">
     <div class="columns">
       <div class="column has-text-centered">
-        <h1 class="title">New Program</h1>
+        <h1 class="title">Program Form</h1>
       </div>
     </div>
     <div class="columns">
@@ -29,12 +29,12 @@
             </span>
             <span>Back</span>
           </button>
-          <button class="button is-success" @click="saveData">
+          <b-button :disabled="!isFormValid" class="button is-success" @click="saveData">
             <span class="icon">
               <i class="far fa-save"></i>
             </span>
             <span>Save</span>
-          </button>
+          </b-button>
         </div>
       </div>
     </div>
@@ -58,6 +58,11 @@ export default {
       discipline: null,
       disciplines: [],
       isLoggedIn: false
+    }
+  },
+  computed: {
+    isFormValid () {
+      return this.name !== '' && this.name !== null
     }
   },
   mounted() {

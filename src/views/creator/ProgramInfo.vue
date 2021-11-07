@@ -12,7 +12,7 @@
             ชื่อ {{ program.name }}
           </h2>
           <div class="has-text-centered" v-if="editable">
-            <button class="button is-primary"
+            <button class="button is-primary is-light"
                     @click="$router.push({ name: 'ProgramEditForm', params: { programId: programId }})">
               <span class="icon">
                 <i class="fas fa-edit"></i>

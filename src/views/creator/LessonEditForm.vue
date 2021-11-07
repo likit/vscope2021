@@ -23,12 +23,12 @@
             </span>
             <span>Back</span>
           </button>
-          <button class="button is-success" @click="saveData">
+          <b-button :disabled="!isFormValid" class="button is-success" @click="saveData">
             <span class="icon">
               <i class="far fa-save"></i>
             </span>
             <span>Save</span>
-          </button>
+          </b-button>
         </div>
       </div>
     </div>
@@ -51,6 +51,11 @@ export default {
       programId: null,
       objective: null,
       name: null,
+    }
+  },
+  computed: {
+    isFormValid () {
+      return this.name !== '' && this.name !== null
     }
   },
   mounted() {

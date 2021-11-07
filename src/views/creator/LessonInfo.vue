@@ -11,19 +11,30 @@
           <h2 class="subtitle has-text-centered">
             ชื่อ {{ lesson.name }}
           </h2>
-          <div class="has-text-centered">
-            <button class="button is-primary"
+          <div class="has-text-centered" v-if="editable">
+            <button class="button is-light is-primary"
                     @click="$router.push({ name: 'LessonEditForm', params: { lessonId: lessonId, programId: lesson.programId }})">
             <span class="icon">
               <i class="fas fa-edit"></i>
             </span>
-              <span>แก้ไขข้อมูล</span>
+              <span>แก้ไขข้อมูลบทเรียน</span>
             </button>
           </div>
         </div>
         <b-table :data="sessions" :loading="isLoading">
-          <b-table-column field="name" label="ชื่อ" v-slot="props">
+          <b-table-column field="name" label="Title" v-slot="props">
             {{ props.row.data.name }}
+          </b-table-column>
+          <b-table-column field="name" label="Objective" v-slot="props">
+            {{ props.row.data.objective }}
+          </b-table-column>
+          <b-table-column field="createdAt" label="Created At" v-slot="props">
+            {{ props.row.data.createdAt.toDate().toLocaleString() }}
+          </b-table-column>
+          <b-table-column width="40" v-slot="props" label="Published">
+            <span class="icon" v-if="props.row.data.published">
+              <i class="fas fa-check-circle has-text-success"></i>
+            </span>
           </b-table-column>
           <b-table-column field="id" width="40" v-slot="props">
             <a class="button is-small is-info is-outlined is-rounded"
@@ -75,6 +86,15 @@ export default {
       sessions: [],
       isLoggedIn: false,
       isLoading: true
+    }
+  },
+  computed: {
+    editable () {
+      if (this.$store.state.user === null) {
+        return false
+      } else {
+        return this.lesson.creator == this.$store.state.user.email
+      }
     }
   },
   mounted() {

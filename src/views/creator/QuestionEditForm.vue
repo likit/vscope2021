@@ -9,12 +9,12 @@
           </h1>
           <h2 class="subtitle has-text-centered has-text-info-dark" v-if="question.updatedAt">
             <span>โดย {{ question.creator }}</span>
-            &ensp;
             <span class="icon">
               <i class="far fa-clock"></i>
             </span>
             <span>{{ question.updatedAt.toLocaleString() }}</span>
           </h2>
+          {{ $store.state.user.email }}
         </div>
       </div>
       <div class="columns">
@@ -176,7 +176,11 @@ export default {
   },
   computed: {
     editable: function () {
-      return this.question.creator == auth.currentUser.email
+      if (this.$store.state.user === null) {
+        return false
+      } else {
+        return this.question.creator == this.$store.state.user.email
+      }
     },
   },
   mounted() {

@@ -11,29 +11,29 @@
           <h2 class="subtitle has-text-centered">
             ชื่อ {{ session.name }}
           </h2>
-          <div class="has-text-centered">
-            <button class="button is-primary"
-                    @click="$router.push({ name: 'LessonEditForm', params: { lessonId: session.lessonId }})">
+          <div class="has-text-centered" v-if="editable">
+            <button class="button is-light is-primary"
+                    @click="$router.push({ name: 'SessionEdit', params: { sessionId: sessionId, lessonId: session.lessonId }})">
           <span class="icon">
             <i class="fas fa-edit"></i>
           </span>
-              <span>แก้ไขข้อมูล</span>
+              <span>แก้ไขข้อมูลชุดฝึก</span>
             </button>
           </div>
         </div>
         <hr>
         <h1 class="title has-text-centered">รายการคำถาม</h1>
         <b-table :data="questions" :loading="isLoading">
-          <b-table-column field="no" label="ลำดับ" v-slot="props">
+          <b-table-column field="no" label="No." v-slot="props">
             {{ props.row.data.no }}
           </b-table-column>
-          <b-table-column field="name" label="ชื่อ" v-slot="props">
+          <b-table-column field="name" label="Title" v-slot="props">
             {{ props.row.data.title }}
           </b-table-column>
-          <b-table-column field="creator" label="ผู้สร้าง" v-slot="props">
+          <b-table-column field="creator" label="Creator" v-slot="props">
             {{ props.row.data.creator }}
           </b-table-column>
-          <b-table-column field="updatedAt" label="แก้ไขเมื่อ" v-slot="props">
+          <b-table-column field="updatedAt" label="Last Update" v-slot="props">
             {{ props.row.data.updatedAt.toDate().toLocaleString() }}
           </b-table-column>
           <b-table-column field="id" width="40" v-slot="props">
@@ -85,6 +85,15 @@ export default {
       isLoggedIn: false,
       isLoading: true,
       questions: [],
+    }
+  },
+  computed: {
+    editable () {
+      if (this.$store.state.user === null) {
+        return false
+      } else {
+        return this.session.creator == this.$store.state.user.email
+      }
     }
   },
   mounted() {
