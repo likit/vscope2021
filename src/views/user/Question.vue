@@ -226,12 +226,14 @@ export default {
                   {
                     src: snapshot.data().fileUrl,
                     crossOrigin: true,
-                    id: "image"
+                    id: "image",
+                    type: "image"
                   },
                   {
                     src: "https://firebasestorage.googleapis.com/v0/b/virtual-microscope-b0953.appspot.com/o/assets%2Fpin2.png?alt=media&token=6e87c161-32b6-411c-9c0d-df9adf275709",
                     crossOrigin: true,
-                    id: 'pin'
+                    id: 'pin',
+                    type: "image"
                   }
                 ]
             )
