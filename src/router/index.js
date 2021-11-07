@@ -255,6 +255,15 @@ const routes = [
         },
         component: () => import('../views/user/Question.vue')
     },
+    {
+        path: '/creator/preview/media',
+        name: 'MediaPreview',
+        meta: {
+            title: 'Media Preview',
+            requiresAuth: true
+        },
+        component: () => import('../views/creator/MediaPreview')
+    },
 ]
 
 const router = new VueRouter({
