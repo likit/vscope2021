@@ -157,7 +157,7 @@ const routes = [
         component: () => import('../views/creator/ProgramEditForm.vue')
     },
     {
-        path: '/creator/lesson/info',
+        path: '/creator/lessons/:lessonId/info',
         name: 'LessonInfo',
         meta: {
             title: 'Lesson Info',
