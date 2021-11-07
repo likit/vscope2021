@@ -33,6 +33,9 @@ const store = new Vuex.Store({
         addQuestion(state, question) {
             state.questions.push(question)
         },
+        clearAnswers(state) {
+            state.answers = []
+        },
         clearQuestions(state) {
             state.questions = []
         },
@@ -106,6 +109,9 @@ const store = new Vuex.Store({
         },
         clearQuestions({commit}) {
             commit('clearQuestions')
+        },
+        clearAnswers({commit}) {
+            commit('clearAnswers')
         },
         reset({commit}) {
             commit('reset')

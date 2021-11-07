@@ -25,9 +25,10 @@
                 <div class="tile is-child">
                   <video :src="video.fileUrl" v-if="video.fileUrl" controls></video>
                 </div>
-                <div class="tile is-child notification is-light" v-if="question.mediaId">
-                  <canvas ref="imageCanvasEdit" width="800" height="800"></canvas>
+                <div class="tile is-child notification is-light">
+                  <canvas id="imageCanvas" ref="imageCanvasEdit" width="800" height="800"></canvas>
                 </div>
+                <b-loading v-model="isMediaLoading" :can-cancel="false"></b-loading>
               </div>
               <div class="tile is-parent">
                 <div class="tile is-child box">
@@ -44,12 +45,6 @@
                     </b-field>
                   </div>
                   <div class="buttons is-centered">
-                    <button class="button is-danger" @click="endSession">
-                      <span class="icon">
-                         <i class="far fa-times-circle"></i>
-                      </span>
-                      <span>End</span>
-                    </button>
                     <button class="button is-light" @click="$router.back()">
                       <span class="icon">
                         <i class="fas fa-chevron-left"></i>
@@ -61,6 +56,20 @@
                       <span class="icon">
                         <i class="fas fa-chevron-right"></i>
                       </span>
+                    </button>
+                  </div>
+                  <div class="buttons is-centered">
+                    <button class="button is-danger" @click="endSession">
+                      <span class="icon">
+                         <i class="far fa-times-circle"></i>
+                      </span>
+                      <span>End</span>
+                    </button>
+                    <button class="button is-info" @click="submit">
+                      <span class="icon">
+                        <i class="fas fa-paper-plane"></i>
+                      </span>
+                      <span>Finish</span>
                     </button>
                   </div>
                 </div>
@@ -84,18 +93,18 @@ export default {
   data() {
     return {
       isLoggedIn: false,
+      isMediaLoading: false,
       questionId: null,
       questionNo: null,
       question: {
         choices: [],
       },
-      answer: null,
-      media: {},
-      video: {},
       queue: null,
       stage: null,
       bmp: null,
       pin: null,
+      answer: null,
+      video: {},
     }
   },
   computed: {
@@ -103,7 +112,7 @@ export default {
   },
   watch: {
     '$route.params.questionNo': function () {
-      this.loadData()
+      this.loadData(false)
     },
     'answer': function (val) {
       this.answer = val
@@ -120,8 +129,7 @@ export default {
   },
   methods: {
     endSession () {
-      const self = this
-      self.$buefy.dialog.confirm({
+      this.$buefy.dialog.confirm({
         message: 'ท่านต้องการสิ้นสุดชุดทดสอบนี้และเริ่มชุดทดสอบใหม่ใช่หรือไม่',
         title: 'End the current session',
         type: 'is-warning',
@@ -131,55 +139,92 @@ export default {
         confirmText: "ยืนยัน",
         onConfirm: () => {
           db.collection('records')
-              .where('sessionId', '==', self.$store.state.sessionId)
+              .where('sessionId', '==', this.$store.state.sessionId)
               .orderBy('start', 'desc')
               .get().then(snapshot=>{
             let ref = snapshot.docs[0]
             db.collection('records').doc(ref.id).update({
               end: new Date()
             }).then(()=>{
-              self.$buefy.toast.open({
+              this.$buefy.toast.open({
                 message: "The session has ended.",
                 type: "is-success"
               })
-              self.$store.dispatch('setSessionId', null)
-              self.$router.push({ name: 'MainPage' })
+              this.$store.dispatch('setSessionId', null)
+              this.$router.push({ name: 'UserProgramList' })
+            })
+          })
+        }
+      })
+    },
+    submit () {
+      if (this.answers.length === 0) {
+        this.$buefy.dialog.alert('คุณยังไม่ได้เริ่มทำชุดคำถามนี้ หากต้องการยกเลิกให้คลิกที่ปุ่ม End')
+        return
+      }
+      this.$buefy.dialog.confirm({
+        message: 'ท่านต้องการส่งคำตอบและสิ้นสุดชุดนี้ใช่หรือไม่',
+        title: 'Submit answer and end the session',
+        type: 'is-warning',
+        ariaRole: 'alertdialog',
+        ariaModal: true,
+        cancelText: "ยกเลิก",
+        confirmText: "ยืนยัน",
+        onConfirm: () => {
+          db.collection('records')
+              .where('sessionId', '==', this.$store.state.sessionId)
+              .orderBy('start', 'desc')
+              .get().then(snapshot=>{
+            let ref = snapshot.docs[0]
+            let submittedAt = new Date()
+            db.collection('records').doc(ref.id).update(
+                {
+                  end: submittedAt,
+                  submittedAt: submittedAt
+                }
+            ).then(()=>{
+              this.$buefy.toast.open({
+                message: "Session ended. Your answers were submitted.",
+                type: "is-success"
+              })
+              this.$store.dispatch('setSessionId', null)
+              this.$store.dispatch('clearAnswers')
+              this.$router.push({ name: 'UserProgramList' })
             })
           })
         }
       })
     },
     loadData () {
-      const self = this
-      self.questionNo = parseInt(self.$route.params.questionNo)
-      self.question = self.questions[self.questionNo].data
-      self.questionId = self.questions[self.questionNo].id
-      this.stage = new this.createjs.Stage(this.$refs.imageCanvasEdit);
+      this.isMediaLoading = true
+      this.questionNo = parseInt(this.$route.params.questionNo)
+      this.question = this.questions[this.questionNo].data
+      this.questionId = this.questions[this.questionNo].id
+      this.stage = new this.createjs.Stage('imageCanvas');
       this.queue = new this.createjs.LoadQueue(false, null, true);
       this.queue.on('complete', this.handleComplete)
-      if (self.answers[self.questionNo] !== undefined) {
-        self.answer = self.answers[self.questionNo].answer
+      if (this.answers[this.questionNo] !== undefined) {
+        this.answer = this.answers[this.questionNo].answer
       }
       try {
-        self.question.updatedAt = self.question.updatedAt.toDate()
+        this.question.updatedAt = this.question.updatedAt.toDate()
       } catch (err) {
         console.log('pass')
       }
-      if (self.question.videoId) {
-        db.collection('video').doc(self.question.videoId).get().then((snapshot) => {
+      if (this.question.videoId) {
+        db.collection('video').doc(this.question.videoId).get().then((snapshot) => {
           if (snapshot.exists) {
-            self.video = snapshot.data()
+            this.video = snapshot.data()
           }
         })
       }
-      if (self.question.mediaId) {
-        db.collection('media').doc(self.question.mediaId).get().then((snapshot) => {
+      if (this.question.mediaId) {
+        db.collection('media').doc(this.question.mediaId).get().then((snapshot) => {
           if (snapshot.exists) {
-            self.media = snapshot.data()
-            self.queue.loadManifest(
+            this.queue.loadManifest(
                 [
                   {
-                    src: self.media.fileUrl,
+                    src: snapshot.data().fileUrl,
                     crossOrigin: true,
                     id: "image"
                   },
@@ -195,11 +240,9 @@ export default {
       }
     },
     prevQuestion() {
-      const self = this
-      let prev = self.questionNo > 0 ? self.questionNo - 1 : 0
-      console.log(prev)
+      let prev = this.questionNo > 0 ? this.questionNo - 1 : 0
       this.$buefy.toast.open({
-        message: "บันทึกคำถามเรียบร้อย",
+        message: "บันทึกคำตอบเรียบร้อย",
         type: "is-success",
       })
       this.$router.push({
@@ -211,23 +254,22 @@ export default {
       })
     },
     nextQuestion() {
-      const self = this
-      let next = self.questionNo + 1
+      let next = this.questionNo + 1
       db.collection('records')
-          .where('sessionId', '==', self.$store.state.sessionId)
+          .where('sessionId', '==', this.$store.state.sessionId)
           .orderBy('start', 'desc').get().then(snapshot => {
         if (snapshot.docs.length > 0) {
           db.collection('records').doc(snapshot.docs[0].id).update({
-            answers: self.answers
+            answers: this.answers
           }).then(() => {
-            self.$buefy.toast.open({
-              message: "บันทึกคำถามเรียบร้อย",
+            this.$buefy.toast.open({
+              message: "บันทึกคำตอบเรียบร้อย",
               type: "is-success",
             })
           })
         }
       })
-      if (next < self.questions.length) {
+      if (next < this.questions.length) {
         this.$router.push({
           name: 'Question',
           params: {
@@ -259,9 +301,10 @@ export default {
       if (this.question.x && this.question.y) {
         this.pin.x = this.question.x - 30
         this.pin.y = this.question.y - 62
-        this.stage.addChild(this.pin)
       }
+      this.stage.addChild(this.pin)
       this.stage.update()
+      this.isMediaLoading = false
     }
   }
 }
