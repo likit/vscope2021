@@ -100,12 +100,15 @@ export default {
       self.isLoading = false
     })
     db.collection('questions')
-        .where('sessionId', '==', this.sessionId).get().then((snapshot)=>{
+        .where('sessionId', '==', this.sessionId)
+        .get().then((snapshot)=>{
       snapshot.docs.forEach((q)=>{
-        self.questions.push({
-          id: q.id,
-          data: q.data()
-        })
+        if (q.data().deleted !== true) {
+          self.questions.push({
+            id: q.id,
+            data: q.data()
+          })
+        }
       })
     })
   }

@@ -303,11 +303,13 @@ export default {
     deleteData() {
       const self = this
       this.$buefy.dialog.confirm({
-        title: "รายการลบแล้วไม่สามารถกู้คืนได้",
+        title: "ลบรายการ",
         message: 'ท่านต้องการลบรายการนี้หรือไม่',
         type: 'is-danger',
         onConfirm: () => {
-          db.collection('questions').doc(this.questionId).delete().then(() => {
+          db.collection('questions').doc(this.questionId).update({
+            deleted: true
+          }).then(() => {
             self.$buefy.toast.open({
               message: "ลบรายการเรียบร้อย",
               type: "is-success",
