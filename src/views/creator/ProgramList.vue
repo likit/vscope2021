@@ -5,17 +5,17 @@
     <div class="columns">
       <div class="column is-three-fifths is-offset-2">
         <h1 class="title">Your Programs</h1>
-        <b-table :data="programs" :loading="isLoading">
-          <b-table-column field="name" label="Name" width="40" v-slot="props">
+        <b-table :data="programs" :loading="isLoading" paginated per-page="5">
+          <b-table-column field="name" label="Name" width="40" sortable v-slot="props">
             {{ props.row.name }}
           </b-table-column>
           <b-table-column field="discipline" label="Discipline" width="40" v-slot="props">
             {{ props.row.discipline }}
           </b-table-column>
-          <b-table-column field="creator" label="Creator" width="40" v-slot="props">
+          <b-table-column field="creator" label="Creator" width="40" sortable v-slot="props">
             {{ props.row.creator }}
           </b-table-column>
-          <b-table-column field="createdAt" label="Created At" width="40" v-slot="props">
+          <b-table-column field="createdAt" label="Created At" sortable width="40" v-slot="props">
             {{ props.row.createdAt }}
           </b-table-column>
           <b-table-column width="40" v-slot="props" label="Published">

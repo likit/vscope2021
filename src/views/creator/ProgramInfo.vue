@@ -21,15 +21,20 @@
             </button>
           </div>
         </div>
-        <b-table :data="lessons" :loading="isLoading">
-          <b-table-column field="name" label="ชื่อบทเรียน" v-slot="props">
+        <b-table :data="lessons" :loading="isLoading" paginated per-page="5">
+          <b-table-column field="name" label="Title" v-slot="props">
             {{ props.row.data.name }}
           </b-table-column>
-          <b-table-column field="objective" label="วัตถุประสงค์" v-slot="props">
+          <b-table-column field="objective" label="Objective" v-slot="props">
             {{ props.row.data.objective }}
           </b-table-column>
-          <b-table-column field="createdAt" label="เพิ่มเมื่อ" v-slot="props">
+          <b-table-column field="createdAt" label="Created At" v-slot="props">
             {{ props.row.data.createdAt.toDate().toLocaleString() }}
+          </b-table-column>
+          <b-table-column width="40" v-slot="props" label="Published">
+            <span class="icon" v-if="props.row.data.published">
+              <i class="fas fa-check-circle has-text-success"></i>
+            </span>
           </b-table-column>
           <b-table-column field="id" width="40" v-slot="props">
             <a class="button is-small is-info is-outlined is-rounded"
