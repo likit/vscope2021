@@ -175,7 +175,7 @@ const routes = [
         component: () => import('../views/creator/LessonEditForm.vue')
     },
     {
-        path: '/creator/session/info',
+        path: '/creator/session/:sessionId/info',
         name: 'SessionInfo',
         meta: {
             title: 'Session Info',
@@ -184,7 +184,7 @@ const routes = [
         component: () => import('../views/creator/SessionInfo.vue')
     },
     {
-        path: '/creator/session/edit',
+        path: '/creator/session/:sessionId?/edit',
         name: 'SessionEdit',
         meta: {
             title: 'Session Edit',
