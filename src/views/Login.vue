@@ -27,24 +27,23 @@ export default {
   components: {NavMenu},
   methods: {
     login: function () {
-      let self = this
       const provider = new firebase.auth.GoogleAuthProvider();
       auth.signInWithPopup(provider)
-        .then(function() {
-          self.$store.dispatch('signIn').then(()=>{
-            if (JSON.stringify(self.$store.state.profile) === "{}") {
-              self.$router.push({ name: 'ProfileLanding' })
+        .then(() => {
+          this.$store.dispatch('signIn').then(()=>{
+            if (JSON.stringify(this.$store.state.profile) === "{}") {
+              this.$router.push({ name: 'ProfileLanding' })
             } else {
-              self.$router.push({ name: 'MainPage' })
+              this.$router.push({ name: 'MainPage' })
             }
           })
         })
-        .catch(function(error){
+        .catch(error => {
           const errorCode = error.code;
           const errorMessage = error.message;
           const email = error.email;
           const credential = error.credential;
-          self.$buefy.dialog.alert({
+          this.$buefy.dialog.alert({
             message: errorMessage,
             title: 'Login Failed',
             type: 'is-danger',

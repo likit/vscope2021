@@ -10,7 +10,7 @@
     <div class="columns">
       <div class="column has-text-centered">
         <h1 class="title">Welcome to Virtual Microscope Platform</h1>
-        <h2 class="subtitle" v-if="isLoggedIn">You're {{ displayName }}
+        <h2 class="subtitle" v-if="isUserloggedIn">You're {{ displayName }}
           <a @click="logout">(Not you?)</a>
         </h2>
       </div>
@@ -19,12 +19,12 @@
       <div class="column has-text-centered">
         <div class="buttons is-centered">
           <a class="button is-light">About</a>
-          <a class="button is-primary" @click="$router.push({ name: 'UserProgramList'})">
+          <router-link class="button is-primary" :to="{name: 'UserProgramList'}">
               <span class="icon">
                 <i class="fas fa-play-circle"></i>
               </span>
             <span>Programs</span>
-          </a>
+          </router-link>
         </div>
       </div>
     </div>
@@ -35,15 +35,13 @@
 <script>
 import NavMenu from "../components/navMenu"
 import {auth} from '../firebase'
+import {mapGetters} from "vuex";
 
 export default {
   name: "Main",
   components: {NavMenu},
-  data() {
-    return {
-      displayName: null,
-      isLoggedIn: false
-    }
+  computed: {
+    ...mapGetters(['displayName', 'isUserLoggedIn'])
   },
   methods: {
     logout: function () {

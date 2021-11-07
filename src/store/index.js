@@ -20,6 +20,10 @@ const store = new Vuex.Store({
         questions: [],
         answers: [],
     },
+    getters: {
+        isUserLoggedIn: state => state.user !== null,
+        displayName: state => state.user.displayName(),
+    },
     mutations: {
         setUser(state, payload) {
             state.user = payload
