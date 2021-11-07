@@ -85,10 +85,12 @@ export default {
     db.collection('lessons')
         .where('programId', '==', self.programId).get().then((snapshot)=>{
       snapshot.docs.forEach((d)=>{
-        self.lessons.push({
-          id: d.id,
-          data: d.data()
-        })
+        if (d.data().published === true) {
+          self.lessons.push({
+            id: d.id,
+            data: d.data()
+          })
+        }
       })
       self.isLoading = false
     })

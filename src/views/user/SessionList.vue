@@ -16,6 +16,12 @@
           <b-table-column field="name" label="ชื่อ" v-slot="props">
             {{ props.row.data.name }}
           </b-table-column>
+          <b-table-column field="objective" label="วัตถุประสงค์" v-slot="props">
+            {{ props.row.data.objective }}
+          </b-table-column>
+          <b-table-column field="createdAt" label="เพิ่มเมื่อ" v-slot="props">
+            {{ props.row.data.createdAt.toDate().toLocaleString() }}
+          </b-table-column>
           <b-table-column field="id" width="40" v-slot="props">
             <a class="button is-info is-rounded"
                @click="$router.push({ name: 'UserQuestionList', params: { programId:$route.params.programId,
@@ -76,10 +82,12 @@ export default {
     db.collection('sessions')
         .where('lessonId', '==', self.lessonId).get().then((snapshot)=>{
       snapshot.docs.forEach((d)=>{
-        self.sessions.push({
-          id: d.id,
-          data: d.data()
-        })
+        if (d.data().published === true) {
+          self.sessions.push({
+            id: d.id,
+            data: d.data()
+          })
+        }
       })
       this.isLoading = false
     })

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <nav-menu :is-logged-in="isLoggedIn" @logout="isLoggedIn=false"></nav-menu>
+    <nav-menu></nav-menu>
     <section class="section">
       <div class="columns">
         <div class="column is-three-fifths is-offset-2">
@@ -163,18 +163,14 @@ export default {
     }
   },
   mounted() {
-    const self = this
-    if (auth.currentUser) {
-      this.isLoggedIn = true
-    }
     this.sessionId = this.$route.params.sessionId
     db.collection('sessions').doc(this.sessionId).get().then((snapshot) => {
       if (snapshot.exists) {
-        self.session = snapshot.data()
+        this.session = snapshot.data()
       }
-      self.isLoading = false
+      this.isLoading = false
     })
-    self.$store.dispatch('loadQuestion', this.sessionId)
+    this.$store.dispatch('loadQuestion', this.sessionId)
   }
 }
 </script>

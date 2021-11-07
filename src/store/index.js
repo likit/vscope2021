@@ -21,8 +21,12 @@ const store = new Vuex.Store({
         answers: [],
     },
     getters: {
-        isUserLoggedIn: state => { return state.user !== null },
-        displayName: state => { return state.user.displayName },
+        isUserLoggedIn: state => {
+            return state.user !== null
+        },
+        displayName: state => {
+            return state.user.displayName
+        },
     },
     mutations: {
         setUser(state, payload) {
@@ -60,13 +64,15 @@ const store = new Vuex.Store({
             await db.collection('questions')
                 .where('sessionId', '==', sessionId)
                 .get().then((snapshot) => {
-                snapshot.docs.forEach((q) => {
-                    commit('addQuestion', {
-                        id: q.id,
-                        data: q.data()
+                    snapshot.docs.forEach((q) => {
+                        if (q.data().deleted !== true) {
+                            commit('addQuestion', {
+                                id: q.id,
+                                data: q.data()
+                            })
+                        }
                     })
                 })
-            })
             await commit('sortQuestions')
         },
         async signIn({commit}) {
@@ -75,25 +81,24 @@ const store = new Vuex.Store({
             await db.collection('email_group_pairs')
                 .where('email', '==', auth.currentUser.email)
                 .get().then(snapshot => {
-                if (snapshot.docs.length > 0) {
-                    data = snapshot.docs[0].data()
-                }
-            })
+                    if (snapshot.docs.length > 0) {
+                        data = snapshot.docs[0].data()
+                    }
+                })
             if (data !== undefined)
                 if (data.group == "EQA") {
                     await db.collection('eqa_profile')
                         .where('email', '==', auth.currentUser.email)
-                        .get().then(snapshot=>{
-                        if (snapshot.docs.length > 0) {
-                            let data = snapshot.docs[0].data()
-                            commit('setProfile', data)
-                        }
-                    })
-                }
-                else if (data.group == "student") {
+                        .get().then(snapshot => {
+                            if (snapshot.docs.length > 0) {
+                                let data = snapshot.docs[0].data()
+                                commit('setProfile', data)
+                            }
+                        })
+                } else if (data.group == "student") {
                     await db.collection('student_profile')
                         .where('email', '==', auth.currentUser.email)
-                        .get().then(snapshot=>{
+                        .get().then(snapshot => {
                             if (snapshot.docs.length > 0) {
                                 let data = snapshot.docs[0].data()
                                 commit('setProfile', data)
