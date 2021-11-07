@@ -10,7 +10,7 @@
     <div class="columns">
       <div class="column has-text-centered">
         <h1 class="title">Welcome to Virtual Microscope Platform</h1>
-        <h2 class="subtitle" v-if="isUserloggedIn">You're {{ displayName }}
+        <h2 class="subtitle" v-if="$store.getters.isUserLoggedIn">You're {{ displayName }}
           <a @click="logout">(Not you?)</a>
         </h2>
       </div>
@@ -41,25 +41,18 @@ export default {
   name: "Main",
   components: {NavMenu},
   computed: {
-    ...mapGetters(['displayName', 'isUserLoggedIn'])
+    ...mapGetters(['displayName'])
   },
   methods: {
     logout: function () {
       let self = this
-      auth.signOut()
-          .then(function() {
-            self.$buefy.toast.open({
-              message: 'Logged out successfully',
-              type: 'is-success'
-            })
-            self.$router.push({ name: 'LogIn' })
-          })
-          .catch(function(error) {
-            self.$buefy.toast.open({
+      auth.signOut().catch(function(error) {
+        self.$buefy.toast.open(
+            {
               message: error.toString(),
               type: 'is-danger'
             })
-          });
+        });
     }
   }
 }

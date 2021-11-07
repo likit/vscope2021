@@ -32,8 +32,9 @@ auth.onAuthStateChanged(user=>{
         store.dispatch('signOut').then(()=>{
             ToastProgrammatic.open({
                 message: "You have logged out.",
+                type: "is-info"
             })
-            router.push({ name: 'MainPage'})
+            router.push({ name: 'LogIn'})
         })
     }
 });
