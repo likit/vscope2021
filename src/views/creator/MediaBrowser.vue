@@ -5,7 +5,7 @@
     <div class="columns">
       <div class="column">
         <p>{{ $route.params.sessionId }}</p>
-        <b-table :data="media" :loading="isLoading">
+        <b-table :data="media" :loading="isLoading" paginated per-page="5">
           <b-table-column field="data.fileUrl" label="ตัวอย่าง" v-slot="props">
             <b-image :src="props.row.data.fileUrl" ratio="2by1" :alt="props.row.data.name"></b-image>
           </b-table-column>
@@ -94,7 +94,7 @@ export default {
       self.user = auth.currentUser
     }
     db.collection('media')
-        .get().then((snapshot)=>{
+        .orderBy('uploaded_at', 'desc').get().then((snapshot)=>{
       snapshot.docs.forEach((d)=>{
         self.media.push({
           id: d.id,
