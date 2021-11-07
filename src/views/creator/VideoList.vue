@@ -27,7 +27,7 @@
             </b-table-column>
             <b-table-column v-slot="props">
               <router-link class="button is-light is-rounded"
-                           v-if="props.row.data.creator==$store.state.user.email"
+                           v-if="props.row.data.uploader===$store.state.user.email"
                            :to="{ name: 'VideoUpload', params: { mediaId: props.row.id }}">
               <span class="icon">
                 <i class="fas fa-pencil-alt"></i>
