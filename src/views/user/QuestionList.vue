@@ -97,8 +97,10 @@ export default {
   methods: {
     startNew() {
       // end the current session
-      db.collection('records')
-          .doc(this.$store.state.recordId).update({ end: new Date() })
+      if (this.$store.state.recordId !== null) {
+        db.collection('records')
+            .doc(this.$store.state.recordId).update({ end: new Date() })
+      }
 
       // create a new record
       db.collection('records').add({
@@ -108,6 +110,7 @@ export default {
         answers: [],
       }).then((recordRef) => {
         this.$store.dispatch('setRecordId', recordRef.id)
+        this.$store.dispatch('clearAnswers')
         this.$store.dispatch('setSessionId', this.$route.params.sessionId).then(() => {
           this.$router.push({
             name: 'Question',
@@ -154,7 +157,6 @@ export default {
               programId: this.$route.params.programId,
               sessionId: this.sessionId,
               questionNo: '0',
-              recordId: this.$store.state.recordId
             }
           })
         })

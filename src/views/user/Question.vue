@@ -44,7 +44,8 @@
                     <h1 class="title is-size-5">ตัวเลือกคำตอบ</h1>
                     <b-field>
                       <div class="block">
-                        <b-radio v-for="choice in question.choices" :key="choice" v-model="answer"
+                        <b-radio v-for="choice in question.choices"
+                                 :key="choice" v-model="answer"
                                  name="choice" :native-value="choice">
                           {{ choice }}
                         </b-radio>
@@ -99,7 +100,6 @@ export default {
     return {
       isMediaLoading: false,
       isMediaMissing: false,
-      recordId: null,
       questionId: null,
       questionNo: null,
       question: {
@@ -145,20 +145,15 @@ export default {
         confirmText: "ยืนยัน",
         onConfirm: () => {
           db.collection('records')
-              .where('sessionId', '==', this.$store.state.sessionId)
-              .orderBy('start', 'desc')
-              .get().then(snapshot=>{
-            let ref = snapshot.docs[0]
-            db.collection('records').doc(ref.id).update({
-              end: new Date()
-            }).then(()=>{
-              this.$buefy.toast.open({
-                message: "The session has ended.",
-                type: "is-success"
-              })
-              this.$store.dispatch('setSessionId', null)
-              this.$router.push({ name: 'UserProgramList' })
-            })
+              .doc(this.$store.state.recordId)
+              .update({ end: new Date() }).then(()=>{
+                this.$buefy.toast.open({
+                  message: "The session has ended.",
+                  type: "is-success"
+                })
+            this.$store.dispatch('setSessionId', null)
+            this.$store.dispatch('clearAnswers')
+            this.$router.push({ name: 'UserProgramList' })
           })
         }
       })
@@ -178,11 +173,11 @@ export default {
         confirmText: "ยืนยัน",
         onConfirm: () => {
           let submittedAt = new Date()
-          db.collection('records').doc(this.recordId).update(
-              {
-                answers: this.answers,
-                end: submittedAt,
-                submittedAt: submittedAt
+          db.collection('records')
+              .doc(this.$store.state.recordId).update({
+            answers: this.answers,
+            end: submittedAt,
+            submittedAt: submittedAt
               }
           ).then(()=>{
             this.$buefy.toast.open({
@@ -198,7 +193,6 @@ export default {
     },
     loadData () {
       this.isMediaLoading = true
-      this.recordId = this.$route.params.recordId
       this.questionNo = parseInt(this.$route.params.questionNo)
       this.question = this.questions[this.questionNo].data
       this.questionId = this.questions[this.questionNo].id
@@ -244,6 +238,8 @@ export default {
             this.isMediaMissing = true
           }
         })
+      } else {
+        this.isMediaLoading = false
       }
     },
     prevQuestion() {
@@ -262,13 +258,27 @@ export default {
     },
     nextQuestion() {
       let next = this.questionNo + 1
-      db.collection('records').doc(this.recordId).update({
+      if (this.answer === null) {
+        this.answers[this.questionNo] = {
+          'answer': '',
+          'updatedAt': new Date(),
+          'questionId': this.questionId,
+          'key': this.question.answer
+        }
+      }
+      db.collection('records')
+          .doc(this.$store.state.recordId).update({
         answers: this.answers
       }).then(() => {
         this.$buefy.toast.open({
           message: "บันทึกคำตอบเรียบร้อย",
           type: "is-success",
         })
+      }).catch(e=>{
+        this.$buefy.toast.open({
+              message: e.toString(),
+              type: "is-danger"
+          })
       })
       if (next < this.questions.length) {
         this.$router.push({

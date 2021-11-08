@@ -247,7 +247,7 @@ const routes = [
         component: () => import('../views/user/QuestionList.vue')
     },
     {
-        path: '/user/programs/:programId/lessons/:lessonId/sessions/:sessionId/questions/:questionNo/record/:recordId',
+        path: '/user/programs/:programId/lessons/:lessonId/sessions/:sessionId/questions/:questionNo',
         name: 'Question',
         meta: {
             title: 'Question',
