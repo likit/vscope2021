@@ -14,7 +14,6 @@
             </span>
             <span>{{ question.updatedAt.toLocaleString() }}</span>
           </h2>
-          {{ $store.state.user.email }}
         </div>
       </div>
       <div class="columns">
