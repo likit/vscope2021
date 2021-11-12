@@ -60,8 +60,8 @@ export default {
   },
   mounted() {
     this.programId = this.$route.params.programId
-    this.lessonId = this.$route.params.lessonId
-    if (this.lessonId) {
+    this.lessonId = this.$route.params.lessonId || null
+    if (this.lessonId !== null) {
       db.collection('lessons').doc(this.lessonId).get().then((snapshot)=>{
         if (snapshot.exists) {
           let data = snapshot.data()

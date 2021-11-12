@@ -20,7 +20,7 @@
         </b-field>
         <div class="buttons is-centered">
           <button class="button is-light"
-                  @click="$router.push({ name: 'SessionInfo', params: { sessionId: sessionId }})">
+                  @click="$router.push({ name: 'LessonInfo', params: { lessonId: lessonId }})">
           <span class="icon">
             <i class="fas fa-chevron-left"></i>
           </span>
@@ -60,9 +60,9 @@ export default {
     }
   },
   mounted () {
-    this.sessionId = this.$route.params.sessionId
+    this.sessionId = this.$route.params.sessionId || null
     this.lessonId = this.$route.params.lessonId
-    if (this.sessionId) {
+    if (this.sessionId !== null) {
       db.collection('sessions').doc(this.sessionId).get().then((snapshot)=>{
         if (snapshot.exists) {
           let data = snapshot.data()
@@ -83,12 +83,12 @@ export default {
           published: this.published,
           creator: auth.currentUser.email,
           createdAt: new Date(),
-        }).then(()=>{
+        }).then((docRef)=>{
           this.$buefy.toast.open({
             message: 'Data saved successfully',
             type: 'is-success'
           })
-          this.$router.push({ name: 'SessionInfo', params: { sessionId: this.sessionId }})
+          this.$router.push({ name: 'SessionInfo', params: { sessionId: docRef.id }})
         }).catch((error)=>{
           this.$buefy.toast.open({
             message: error.toString(),
