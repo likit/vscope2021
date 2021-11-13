@@ -243,6 +243,7 @@ export default {
       }
     },
     prevQuestion() {
+      this.answer = null
       let prev = this.questionNo > 0 ? this.questionNo - 1 : 0
       this.$buefy.toast.open({
         message: "บันทึกคำตอบเรียบร้อย",
@@ -301,6 +302,7 @@ export default {
           onConfirm: ()=>{ this.submit() }
         })
       }
+      this.answer = null
     },
     handleComplete() {
       let image = this.queue.getResult('image')
