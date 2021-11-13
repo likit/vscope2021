@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import {db} from "../../firebase";
+import {auth, db} from "../../firebase";
 import NavMenu from "../../components/navMenu";
 
 export default {
@@ -78,6 +78,7 @@ export default {
         db.collection('lessons').add({
           programId: this.programId,
           name: this.name,
+          creator: auth.currentUser.email,
           published: this.published,
           objective: this.objective,
           createdAt: new Date()

@@ -93,7 +93,7 @@ export default {
       if (this.$store.state.user === null) {
         return false
       } else {
-        return this.lesson.creator == this.$store.state.user.email
+        return this.lesson.creator == auth.currentUser.email
       }
     }
   },
