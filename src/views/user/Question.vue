@@ -310,9 +310,11 @@ export default {
       this.bmp = new this.createjs.Bitmap(image);
       this.pin = new this.createjs.Bitmap(pin)
       this.stage.addChild(this.bmp)
-      if (this.question.x && this.question.y) {
+      if (this.question.x !== null && this.question.y != null) {
         this.pin.x = this.question.x - 30
         this.pin.y = this.question.y - 62
+      } else {
+        this.pin.visible = false
       }
       this.stage.addChild(this.pin)
       this.stage.update()
