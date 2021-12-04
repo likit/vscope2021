@@ -13,7 +13,12 @@
         <h2 class="subtitle" v-if="$store.getters.isUserLoggedIn">You're {{ displayName }}
           <a @click="logout">(Not you?)</a>
         </h2>
-        <h3 class="title is-size-5" v-if="$store.state.isAdmin === true">You are an admin.</h3>
+        <p v-if="$store.state.isAdmin === true">
+          <span class="icon">
+            <i class="fas fa-crown has-text-warning"></i>
+          </span>
+          <span class="has-text-warning">You are an admin.</span>
+        </p>
       </div>
     </div>
     <div class="columns">
