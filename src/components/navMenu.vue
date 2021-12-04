@@ -11,7 +11,7 @@
           Main Page
         </b-navbar-item>
       </b-navbar-dropdown>
-      <b-navbar-dropdown label="Creator">
+      <b-navbar-dropdown label="Creator" v-if="$store.state.isAdmin === true">
         <b-navbar-item :to="{ name:  'CreatorMain'}" tag="router-link">
           Main Page
         </b-navbar-item>

@@ -20,6 +20,7 @@ const store = new Vuex.Store({
         recordId: null,
         questions: [],
         answers: [],
+        isAdmin: false
     },
     getters: {
         isUserLoggedIn: state => {
@@ -54,6 +55,9 @@ const store = new Vuex.Store({
         sortQuestions(state) {
             state.questions.sort(sortQuestions)
         },
+        setAdmin(state, payload) {
+            state.isAdmin = payload
+        },
         reset(state) {
             state.user = null
             state.profile = {}
@@ -82,6 +86,15 @@ const store = new Vuex.Store({
         async signIn({commit}) {
             commit('setUser', auth.currentUser)
             let data
+            await db.collection('admins')
+                .where('email', '==', auth.currentUser.email)
+                .get().then(snapshot => {
+                    if (!snapshot.empty) {
+                        commit('setAdmin', true)
+                    } else {
+                        commit('setAdmin', false)
+                    }
+                })
             await db.collection('email_group_pairs')
                 .where('email', '==', auth.currentUser.email)
                 .get().then(snapshot => {
