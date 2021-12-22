@@ -193,6 +193,24 @@ const routes = [
         component: () => import('../views/creator/SessionEdit.vue')
     },
     {
+        path: '/creator/session/:sessionId?/records',
+        name: 'Records',
+        meta: {
+            title: 'Records',
+            requiresAuth: true
+        },
+        component: () => import('../views/creator/Records')
+    },
+    {
+        path: '/creator/session/:sessionId/records/:recordId/detail',
+        name: 'RecordDetail',
+        meta: {
+            title: 'Record Detail',
+            requiresAuth: true
+        },
+        component: () => import('../views/creator/RecordDetail')
+    },
+    {
         path: '/creator/questions/info',
         name: 'QuestionInfo',
         meta: {

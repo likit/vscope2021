@@ -1,6 +1,6 @@
 <template>
 <div>
-  <nav-menu :is-logged-in="isLoggedIn" @logout="isLoggedIn=false"></nav-menu>
+  <nav-menu></nav-menu>
   <section class="section">
     <div class="columns">
       <div class="column is-three-fifths is-offset-2">
@@ -11,14 +11,20 @@
           <h2 class="subtitle has-text-centered">
             ชื่อ {{ session.name }}
           </h2>
-          <div class="has-text-centered" v-if="editable">
-            <button class="button is-light is-primary"
-                    @click="$router.push({ name: 'SessionEdit', params: { sessionId: sessionId, lessonId: session.lessonId }})">
-          <span class="icon">
-            <i class="fas fa-edit"></i>
-          </span>
-              <span>แก้ไขข้อมูลชุดฝึก</span>
-            </button>
+          <div class="buttons is-centered">
+            <div v-if="editable">
+              <button class="button is-light is-primary"
+                      @click="$router.push({ name: 'SessionEdit', params: { sessionId: sessionId, lessonId: session.lessonId }})">
+                <span class="icon">
+                  <i class="fas fa-edit"></i>
+                </span>
+                <span>แก้ไขข้อมูลชุดฝึก</span>
+              </button>
+            </div>
+            <router-link :to="{ name: 'Records', params: { sessionId: sessionId}}"
+                         class="button is-info">
+              Records
+            </router-link>
           </div>
         </div>
         <hr>
@@ -82,7 +88,6 @@ export default {
     return {
       sessionId: null,
       session: null,
-      isLoggedIn: false,
       isLoading: true,
       questions: [],
     }
@@ -112,12 +117,10 @@ export default {
         .where('sessionId', '==', this.sessionId)
         .get().then((snapshot)=>{
       snapshot.docs.forEach((q)=>{
-        if (q.data().deleted !== true) {
-          self.questions.push({
-            id: q.id,
-            data: q.data()
-          })
-        }
+        self.questions.push({
+          id: q.id,
+          data: q.data()
+        })
       })
     })
   }
