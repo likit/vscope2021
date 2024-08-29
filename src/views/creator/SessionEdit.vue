@@ -18,6 +18,12 @@
         <b-field label="เผยแพร่">
           <b-switch v-model="published"></b-switch>
         </b-field>
+        <b-field label="สุ่มคำถาม">
+          <b-switch v-model="randomQuestion"></b-switch>
+        </b-field>
+        <b-field label="จำนวนคำถามที่แสดง" message="Default is all questions.">
+          <b-input v-model="numberDisplayQuestion" type="number"></b-input>
+        </b-field>
         <div class="buttons is-centered">
           <button class="button is-light"
                   @click="$router.push({ name: 'LessonInfo', params: { lessonId: lessonId }})">
@@ -52,6 +58,8 @@ export default {
       objective: null,
       lessonId: null,
       published: false,
+      randomQuestion: false,
+      numberDisplayQuestion: null,
     }
   },
   computed: {
@@ -69,6 +77,8 @@ export default {
           this.name = data.name
           this.objective = data.objective
           this.published = data.published || false
+          this.randomQuestion = data.randomQuestion || false
+          this.numberDisplayQuestion = data.numberDisplayQuestion || null
         }
       })
     }
@@ -82,6 +92,8 @@ export default {
           objective: this.objective,
           published: this.published,
           creator: auth.currentUser.email,
+          randomQuestion: this.randomQuestion,
+          numberDisplayQuestion: this.numberDisplayQuestion,
           createdAt: new Date(),
         }).then((docRef)=>{
           this.$buefy.toast.open({
@@ -100,6 +112,8 @@ export default {
           name: this.name,
           objective: this.objective,
           published: this.published,
+          randomQuestion: this.randomQuestion,
+          numberDisplayQuestion: this.numberDisplayQuestion,
         }).then(()=>{
           this.$buefy.toast.open({
             message: 'Data updated successfully',
