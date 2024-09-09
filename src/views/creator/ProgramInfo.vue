@@ -22,6 +22,9 @@
           </div>
         </div>
         <b-table :data="lessons" :loading="isLoading" paginated per-page="5">
+          <b-table-column field="number" label="No." v-slot="props">
+            {{ props.row.data.number }}
+          </b-table-column>
           <b-table-column field="name" label="Title" v-slot="props">
             {{ props.row.data.name }}
           </b-table-column>
@@ -104,7 +107,7 @@ export default {
       }
     })
     db.collection('lessons')
-        .where('programId', '==', self.programId).get().then((snapshot)=>{
+        .where('programId', '==', self.programId).orderBy('number').get().then((snapshot)=>{
       snapshot.docs.forEach((d)=>{
         self.lessons.push({
           id: d.id,

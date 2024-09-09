@@ -7,6 +7,9 @@
         <h1 class="title has-text-centered">
           Lesson Form
         </h1>
+        <b-field label="ลำดับ" type="is-danger" message="required">
+          <b-numberinput v-model="number"></b-numberinput>
+        </b-field>
         <b-field label="ชื่อบทเรียน" type="is-danger" message="required">
           <b-input v-model="name"></b-input>
         </b-field>
@@ -51,6 +54,7 @@ export default {
       programId: null,
       objective: null,
       name: null,
+      number: null
     }
   },
   computed: {
@@ -68,6 +72,7 @@ export default {
           this.name = data.name
           this.objective = data.objective
           this.published = data.published || false
+          this.number = data.number
         }
       })
     }
@@ -81,6 +86,7 @@ export default {
           creator: auth.currentUser.email,
           published: this.published,
           objective: this.objective,
+          number: this.number,
           createdAt: new Date()
         }).then(()=>{
           this.$buefy.toast.open({
@@ -98,7 +104,8 @@ export default {
         db.collection('lessons').doc(this.lessonId).update({
           name: this.name,
           published: this.published,
-          objective: this.objective
+          objective: this.objective,
+          number: this.number,
         }).then(()=>{
           this.$buefy.toast.open({
             message: 'Data saved successfully',
