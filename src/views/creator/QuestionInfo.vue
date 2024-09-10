@@ -60,6 +60,9 @@
                 <div class="notification is-white">
                   <h1 class="title is-size-5">ใช้วิดีโอประกอบ</h1>
                   <p class="notification" v-if="video">ชื่อ {{ video.name }}</p>
+                  <b-field label="Video URL">
+                    <b-input v-model="videoUrl"></b-input>
+                  </b-field>
                   <div class="buttons">
                     <router-link class="button is-info is-outlined"
                                  :to="{ name: 'VideoBrowser', params: { sessionId: sessionId }}">

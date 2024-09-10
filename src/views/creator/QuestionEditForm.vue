@@ -22,8 +22,9 @@
             <div class="tile">
               <div class="tile is-parent">
                 <div class="tile is-child notification is-light" v-if="isMediaMissing === false">
-                  <canvas ref="imageCanvasEdit" width="800" height="800"></canvas>
                   <video :src="video.fileUrl" v-if="video.fileUrl" controls></video>
+                  <iframe v-if="question.videoURL" width="560" height="315" :src="question.videoURL" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                  <canvas ref="imageCanvasEdit" width="800" height="800"></canvas>
                 </div>
                 <div v-else class="tile is-child notification is-light">
                   <span class="icon">
@@ -79,6 +80,9 @@
                   <div class="notification is-white">
                     <h1 class="title is-size-5">ใช้วิดีโอประกอบ</h1>
                     <p class="notification" v-if="video">ชื่อ {{ video.name }}</p>
+                    <b-field label="Video URL">
+                      <b-input v-model="question.videoURL"></b-input>
+                    </b-field>
                     <div class="buttons">
                       <router-link class="button is-info is-outlined"
                                    :to="{ name: 'VideoBrowser', params: { questionId: questionId }}">
