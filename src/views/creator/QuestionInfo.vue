@@ -16,6 +16,7 @@
             <div class="tile is-parent">
               <div class="tile is-child notification">
                 <video :src="video.fileUrl" v-if="video.fileUrl" controls></video>
+                <iframe v-if="question.videoURL" width="560" height="315" :src="question.videoURL" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 <canvas ref="imageCanvas" width="800" height="800"></canvas>
               </div>
             </div>
@@ -151,7 +152,7 @@ export default {
       point: 0,
       title: null,
       pin: null,
-      videoLink: null,
+      videoURL: null,
     }
   },
   mounted() {
@@ -234,6 +235,7 @@ export default {
           y: this.y,
           point: this.point,
           creator: auth.currentUser.email,
+          videoURL: this.videoURL,
           updatedAt: new Date()
         }).then(()=>{
           this.$buefy.toast.open({
