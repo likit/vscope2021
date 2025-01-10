@@ -211,6 +211,15 @@ const routes = [
         component: () => import('../views/creator/RecordDetail')
     },
     {
+        path: '/creator/session/:sessionId/questions/formats',
+        name: 'QuestionFormatList',
+        meta: {
+            title: 'Question Format List',
+            requiresAuth: true
+        },
+        component: () => import('../views/creator/QuestionFormatList')
+    },
+    {
         path: '/creator/questions/info',
         name: 'QuestionInfo',
         meta: {
@@ -218,6 +227,15 @@ const routes = [
             requiresAuth: true
         },
         component: () => import('../views/creator/QuestionInfo.vue')
+    },
+    {
+        path: '/creator/session/:sessionId/questions/phlebotomysim',
+        name: 'PhlebotomySimEdit',
+        meta: {
+            title: 'Phlebotomy Simulation Edit Form',
+            requiresAuth: true
+        },
+        component: () => import('../views/creator/PhlebotomySimEdit')
     },
     {
         path: '/creator/question/edit',
@@ -272,6 +290,15 @@ const routes = [
             requiresAuth: true
         },
         component: () => import('../views/user/Question.vue')
+    },
+    {
+        path: '/user/programs/:programId/lessons/:lessonId/sessions/:sessionId/questions-ordering',
+        name: 'QuestionOrdering',
+        meta: {
+            title: 'Question Ordering',
+            requiresAuth: true
+        },
+        component: () => import('../views/user/QuestionOrdering.vue')
     },
     {
         path: '/creator/preview/media',

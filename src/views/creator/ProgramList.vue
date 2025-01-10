@@ -3,7 +3,7 @@
   <nav-menu :is-logged-in="isLoggedIn" @logout="isLoggedIn=false"></nav-menu>
   <section class="section">
     <div class="columns">
-      <div class="column is-three-fifths is-offset-2">
+      <div class="column">
         <h1 class="title">Your Programs</h1>
         <b-table :data="programs" :loading="isLoading" paginated per-page="5">
           <b-table-column field="name" label="Name" width="40" sortable v-slot="props">

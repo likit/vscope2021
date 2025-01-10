@@ -112,16 +112,29 @@ export default {
         this.$store.dispatch('setRecordId', recordRef.id)
         this.$store.dispatch('clearAnswers')
         this.$store.dispatch('setSessionId', this.$route.params.sessionId).then(() => {
-          this.$router.push({
-            name: 'Question',
-            params: {
-              lessonId: this.session.lessonId,
-              programId: this.$route.params.programId,
-              sessionId: this.sessionId,
-              recordId: recordRef.id,
-              questionNo: '0'
-            }
-          })
+          if (this.session.orderingAnswers) {
+            this.$router.push({
+              name: 'QuestionOrdering',
+              params: {
+                lessonId: this.session.lessonId,
+                programId: this.$route.params.programId,
+                sessionId: this.sessionId,
+                recordId: recordRef.id,
+                questionNo: '0'
+              }
+            })
+          } else {
+            this.$router.push({
+              name: 'Question',
+              params: {
+                lessonId: this.session.lessonId,
+                programId: this.$route.params.programId,
+                sessionId: this.sessionId,
+                recordId: recordRef.id,
+                questionNo: '0'
+              }
+            })
+          }
         })
       })
     },
@@ -150,15 +163,27 @@ export default {
         })
       } else {
         this.$store.dispatch('setSessionId', this.$route.params.sessionId).then(() => {
-          this.$router.push({
-            name: 'Question',
-            params: {
-              lessonId: this.session.lessonId,
-              programId: this.$route.params.programId,
-              sessionId: this.sessionId,
-              questionNo: '0',
-            }
-          })
+          if (this.session.orderingAnswers) {
+            this.$router.push({
+              name: 'QuestionOrdering',
+              params: {
+                lessonid: this.session.lessonid,
+                programid: this.$route.params.programid,
+                sessionid: this.sessionid,
+                questionno: '0',
+              }
+            })
+          } else {
+            this.$router.push({
+              name: 'Question',
+              params: {
+                lessonid: this.session.lessonid,
+                programid: this.$route.params.programid,
+                sessionid: this.sessionid,
+                questionno: '0',
+              }
+            })
+          }
         })
       }
     }
@@ -170,8 +195,8 @@ export default {
         this.session = snapshot.data()
       }
       this.isLoading = false
+      this.$store.dispatch('loadQuestion', this.sessionId, this.session.randomQuestion)
     })
-    this.$store.dispatch('loadQuestion', this.sessionId)
   }
 }
 </script>

@@ -16,7 +16,7 @@
             <div class="tile is-parent">
               <div class="tile is-child notification">
                 <video :src="video.fileUrl" v-if="video.fileUrl" controls></video>
-                <iframe v-if="question.videoURL" width="560" height="315" :src="question.videoURL" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                <!-- <iframe v-if="question.videoURL" width="560" height="315" :src="question.videoURL" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe> -->
                 <canvas ref="imageCanvas" width="800" height="800"></canvas>
               </div>
             </div>

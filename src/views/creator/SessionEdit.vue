@@ -24,6 +24,12 @@
         <b-field label="จำนวนคำถามที่แสดง" message="Default is all questions.">
           <b-input v-model="numberDisplayQuestion" type="number"></b-input>
         </b-field>
+        <b-field label="เรียงคำถามให้ถูกต้องตามลำดับ">
+          <b-switch v-model="orderingAnswers"></b-switch>
+        </b-field>
+        <b-field label="เฉลยการเรียงลำดับ">
+          <b-taginput v-model="orderingAnswersKey" icon="label" placeholder="เพิ่มรายการ"></b-taginput>
+        </b-field>
         <div class="buttons is-centered">
           <button class="button is-light"
                   @click="$router.push({ name: 'LessonInfo', params: { lessonId: lessonId }})">
@@ -60,6 +66,8 @@ export default {
       published: false,
       randomQuestion: false,
       numberDisplayQuestion: null,
+      orderingAnswers: null,
+      orderingAnswersKey: [],
     }
   },
   computed: {
@@ -79,6 +87,8 @@ export default {
           this.published = data.published || false
           this.randomQuestion = data.randomQuestion || false
           this.numberDisplayQuestion = data.numberDisplayQuestion || null
+          this.orderingAnswers = data.orderingAnswers
+          this.orderingAnswersKey = data.orderingAnswersKey
         }
       })
     }
@@ -94,6 +104,8 @@ export default {
           creator: auth.currentUser.email,
           randomQuestion: this.randomQuestion,
           numberDisplayQuestion: this.numberDisplayQuestion,
+          orderingAnswers: this.orderingAnswers,
+          orderingAnswersKey: this.orderingAnswersKey,
           createdAt: new Date(),
         }).then((docRef)=>{
           this.$buefy.toast.open({
@@ -114,6 +126,8 @@ export default {
           published: this.published,
           randomQuestion: this.randomQuestion,
           numberDisplayQuestion: this.numberDisplayQuestion,
+          orderingAnswers: this.orderingAnswers,
+          orderingAnswersKey: this.orderingAnswersKey,
         }).then(()=>{
           this.$buefy.toast.open({
             message: 'Data updated successfully',

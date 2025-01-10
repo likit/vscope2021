@@ -64,7 +64,7 @@
         </span>
             <span>Back</span>
           </button>
-          <router-link class="button is-success" :to="{ name: 'QuestionInfo', params: { sessionId: sessionId}}">
+          <router-link class="button is-success" :to="{ name: 'QuestionFormatList', params: { sessionId: sessionId}}">
         <span class="icon">
           <i class="fas fa-plus-circle"></i>
         </span>
