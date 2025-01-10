@@ -11,14 +11,14 @@
           <b-input v-model="title"></b-input>
         </b-field>
         <b-field label="Arm with no tourniquet">
-          <b-select placeholder="Select an image">
+          <b-select v-model="armWithOutTourniquetMediaId" placeholder="Select an image">
             <option v-for="m in mediaList" :value="m.id" :key="m.id">
               {{ m.data.name }}
             </option>
           </b-select>
         </b-field>
         <b-field label="Arm with tourniquet">
-          <b-select placeholder="Select Arm with tourniquet">
+          <b-select v-model="armWithTourniquetMediaId" placeholder="Select Arm with tourniquet">
             <option v-for="m in mediaList" :value="m.id" :key="m.id">
               {{ m.data.name }}
             </option>
@@ -48,6 +48,7 @@ export default {
       armWithOutTourniquetMediaId: null,
       armWithOutTouriquetMedia: null,
       mediaList: [],
+      sessionId: null
     }
   },
   methods: {
@@ -69,6 +70,7 @@ export default {
     },
   },
   mounted() {
+    this.sessionId = this.$route.params.sessionId
     this.stage = new this.createjs.Stage(this.$refs.imageCanvas);
     this.queue = new this.createjs.LoadQueue(false, null, true);
     if (auth.currentUser) {
