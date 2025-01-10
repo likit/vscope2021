@@ -44,7 +44,7 @@
           </b-table-column>
           <b-table-column field="id" width="40" v-slot="props">
             <a class="button is-small is-info is-outlined is-rounded"
-               @click="$router.push({ name: 'QuestionEditForm', params: { questionId: props.row.id }})">
+               @click="$router.push({ name: props.row.routeName, params: { questionId: props.row.id }})">
           <span class="icon">
             <i class="far fa-eye"></i>
           </span>
@@ -117,10 +117,18 @@ export default {
         .where('sessionId', '==', this.sessionId)
         .get().then((snapshot)=>{
       snapshot.docs.forEach((q)=>{
-        self.questions.push({
+        console.log(q.data())
+        let question_ = {
           id: q.id,
-          data: q.data()
-        })
+          data: q.data(),
+          routeName: ''
+        }
+        switch(question_.data.format) {
+          case 'PhlebotomySim':
+            question_.routeName = 'PhlebotomySimEdit'
+            break
+        }
+        self.questions.push(question_)
       })
     })
   }
