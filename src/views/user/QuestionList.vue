@@ -6,7 +6,7 @@
         <div class="column is-three-fifths is-offset-2">
           <div v-if="session !== null">
             <h1 class="title has-text-centered">
-              ชุดแบบฝึก
+              ชุดแบบฝึก {{ session.format }}
             </h1>
             <h2 class="subtitle has-text-centered">
               ชื่อ {{ session.name }}
@@ -96,40 +96,52 @@ export default {
   },
   methods: {
     startNew() {
+      let self = this
       // end the current session
-      if (this.$store.state.recordId !== null) {
+      if (self.$store.state.recordId !== null) {
         db.collection('records')
-            .doc(this.$store.state.recordId).update({ end: new Date() })
+            .doc(self.$store.state.recordId).update({ end: new Date() })
       }
 
       // create a new record
       db.collection('records').add({
-        email: this.$store.state.user.email,
+        email: self.$store.state.user.email,
         start: new Date(),
-        sessionId: this.$route.params.sessionId,
+        sessionId: self.$route.params.sessionId,
         answers: [],
       }).then((recordRef) => {
-        this.$store.dispatch('setRecordId', recordRef.id)
-        this.$store.dispatch('clearAnswers')
-        this.$store.dispatch('setSessionId', this.$route.params.sessionId).then(() => {
-          if (this.session.orderingAnswers) {
-            this.$router.push({
+        self.$store.dispatch('setRecordId', recordRef.id)
+        self.$store.dispatch('clearAnswers')
+        self.$store.dispatch('setSessionId', self.$route.params.sessionId).then(() => {
+          if (self.session.orderingAnswers) {
+            self.$router.push({
               name: 'QuestionOrdering',
               params: {
-                lessonId: this.session.lessonId,
-                programId: this.$route.params.programId,
-                sessionId: this.sessionId,
+                lessonId: self.session.lessonId,
+                programId: self.$route.params.programId,
+                sessionId: self.sessionId,
+                recordId: recordRef.id,
+                questionNo: '0'
+              }
+            })
+          } else if (self.session.format == "Phlebotomy Simulation") {
+            self.$router.push({
+              name: 'PhlebotomySimUser',
+              params: {
+                lessonId: self.session.lessonId,
+                programId: self.$route.params.programId,
+                sessionId: self.sessionId,
                 recordId: recordRef.id,
                 questionNo: '0'
               }
             })
           } else {
-            this.$router.push({
+            self.$router.push({
               name: 'Question',
               params: {
-                lessonId: this.session.lessonId,
-                programId: this.$route.params.programId,
-                sessionId: this.sessionId,
+                lessonId: self.session.lessonId,
+                programId: self.$route.params.programId,
+                sessionId: self.sessionId,
                 recordId: recordRef.id,
                 questionNo: '0'
               }
@@ -139,8 +151,9 @@ export default {
       })
     },
     start() {
-      if (this.$store.state.sessionId != null && this.$store.state.sessionId !== this.sessionId) {
-        this.$buefy.dialog.confirm({
+      let self = this
+      if (self.$store.state.sessionId != null && self.$store.state.sessionId !== self.sessionId) {
+        self.$buefy.dialog.confirm({
           message: 'ท่านต้องการสิ้นสุดชุดทดสอบนี้และเริ่มชุดทดสอบใหม่ใช่หรือไม่',
           title: 'End the current session',
           type: 'is-warning',
@@ -148,10 +161,10 @@ export default {
           ariaModal: true,
           cancelText: "ยกเลิก",
           confirmText: "ยืนยัน",
-          onConfirm: this.startNew
+          onConfirm: self.startNew
         })
-      } else if (this.$store.state.sessionId == null) {
-        this.$buefy.dialog.confirm({
+      } else if (self.$store.state.sessionId == null) {
+        self.$buefy.dialog.confirm({
           message: 'ท่านต้องการเริ่มชุดทดสอบใหม่ใช่หรือไม่',
           title: 'Start a new session',
           type: 'is-success',
@@ -159,27 +172,37 @@ export default {
           ariaModal: true,
           cancelText: "ยกเลิก",
           confirmText: "ยืนยัน",
-          onConfirm: this.startNew
+          onConfirm: self.startNew
         })
       } else {
-        this.$store.dispatch('setSessionId', this.$route.params.sessionId).then(() => {
-          if (this.session.orderingAnswers) {
-            this.$router.push({
+        self.$store.dispatch('setSessionId', self.$route.params.sessionId).then(() => {
+          if (self.session.orderingAnswers) {
+            self.$router.push({
               name: 'QuestionOrdering',
               params: {
-                lessonid: this.session.lessonid,
-                programid: this.$route.params.programid,
-                sessionid: this.sessionid,
+                lessonid: self.session.lessonid,
+                programid: self.$route.params.programid,
+                sessionid: self.sessionid,
                 questionno: '0',
               }
             })
+          } else if (self.session.format == "Phlebotomy Simulation") {
+            self.$router.push({
+              name: 'PhlebotomySimUser',
+              params: {
+                lessonId: self.session.lessonId,
+                programId: self.$route.params.programId,
+                sessionId: self.sessionId,
+                questionNo: '0'
+              }
+            })
           } else {
-            this.$router.push({
+            self.$router.push({
               name: 'Question',
               params: {
-                lessonid: this.session.lessonid,
-                programid: this.$route.params.programid,
-                sessionid: this.sessionid,
+                lessonid: self.session.lessonid,
+                programid: self.$route.params.programid,
+                sessionid: self.sessionid,
                 questionno: '0',
               }
             })

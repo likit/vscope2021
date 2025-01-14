@@ -135,6 +135,13 @@
             </option>
           </b-select>
         </b-field>
+        <b-field label="รูปไอคอนเข็ม">
+          <b-select v-model="question.needleMediaId" placeholder="Select the image">
+            <option v-for="m in mediaList" :value="m.id" :key="m.id">
+              {{ m.data.name }}
+            </option>
+          </b-select>
+        </b-field>
         <div class="buttons is-centered">
           <button class="button is-light"
                   @click="$router.push({ name: 'SessionInfo', params: { sessionId: question.sessionId }})">
@@ -177,6 +184,7 @@ export default {
         syringeMediaId: null,
         needleBinMediaId: null,
         transporeMediaId: null,
+        needleMediaId: null,
         updatedAt: null,
         line1X1: null,
         line1Y1: null,

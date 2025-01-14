@@ -15,6 +15,13 @@
         <b-field label="วัตถุประสงค์">
           <b-input v-model="objective" type="textarea"></b-input>
         </b-field>
+        <b-field label="รูปแบบคำถาม">
+          <b-select v-model="format" placeholder="Select the image">
+            <option v-for="f in formatList" :value="f" :key="f">
+              {{ f }}
+            </option>
+          </b-select>
+        </b-field>
         <b-field label="เผยแพร่">
           <b-switch v-model="published"></b-switch>
         </b-field>
@@ -60,6 +67,7 @@ export default {
   components: {NavMenu},
   data() {
     return {
+      formatList: ["MCQ", "Ordering", "Phlebotomy Simulation"],
       name: null,
       objective: null,
       lessonId: null,
@@ -68,6 +76,7 @@ export default {
       numberDisplayQuestion: null,
       orderingAnswers: null,
       orderingAnswersKey: [],
+      format: "",
     }
   },
   computed: {
@@ -83,6 +92,7 @@ export default {
         if (snapshot.exists) {
           let data = snapshot.data()
           this.name = data.name
+          this.format = data.format
           this.objective = data.objective
           this.published = data.published || false
           this.randomQuestion = data.randomQuestion || false
@@ -95,39 +105,42 @@ export default {
   },
   methods: {
     saveData: function () {
+      let self = this
       if (this.sessionId === null) {
         db.collection('sessions').add({
-          name: this.name,
-          lessonId: this.lessonId,
-          objective: this.objective,
-          published: this.published,
+          name: self.name,
+          lessonId: self.lessonId,
+          objective: self.objective,
+          published: self.published,
           creator: auth.currentUser.email,
-          randomQuestion: this.randomQuestion,
-          numberDisplayQuestion: this.numberDisplayQuestion,
-          orderingAnswers: this.orderingAnswers,
-          orderingAnswersKey: this.orderingAnswersKey,
+          randomQuestion: self.randomQuestion,
+          numberDisplayQuestion: self.numberDisplayQuestion,
+          orderingAnswers: self.orderingAnswers,
+          orderingAnswersKey: self.orderingAnswersKey,
+          format: self.format,
           createdAt: new Date(),
         }).then((docRef)=>{
-          this.$buefy.toast.open({
+          self.$buefy.toast.open({
             message: 'Data saved successfully',
             type: 'is-success'
           })
-          this.$router.push({ name: 'SessionInfo', params: { sessionId: docRef.id }})
+          self.$router.push({ name: 'SessionInfo', params: { sessionId: docRef.id }})
         }).catch((error)=>{
-          this.$buefy.toast.open({
+          self.$buefy.toast.open({
             message: error.toString(),
             type: 'is-danger'
           })
         })
       } else {
         db.collection('sessions').doc(this.sessionId).update({
-          name: this.name,
-          objective: this.objective,
-          published: this.published,
-          randomQuestion: this.randomQuestion,
-          numberDisplayQuestion: this.numberDisplayQuestion,
-          orderingAnswers: this.orderingAnswers,
-          orderingAnswersKey: this.orderingAnswersKey,
+          name: self.name,
+          objective: self.objective,
+          published: self.published,
+          randomQuestion: self.randomQuestion,
+          numberDisplayQuestion: self.numberDisplayQuestion,
+          orderingAnswers: self.orderingAnswers,
+          orderingAnswersKey: self.orderingAnswersKey,
+          format: self.format,
         }).then(()=>{
           this.$buefy.toast.open({
             message: 'Data updated successfully',

@@ -292,6 +292,15 @@ const routes = [
         component: () => import('../views/user/Question.vue')
     },
     {
+        path: '/user/programs/:programId/lessons/:lessonId/sessions/:sessionId/questions/:questionNo/phlebotomy-simulation',
+        name: 'PhlebotomySimUser',
+        meta: {
+            title: 'Phlebotomy Simulation Question',
+            requiresAuth: true
+        },
+        component: () => import('../views/user/PhlebotomySim.vue')
+    },
+    {
         path: '/user/programs/:programId/lessons/:lessonId/sessions/:sessionId/questions-ordering',
         name: 'QuestionOrdering',
         meta: {
