@@ -17,6 +17,15 @@
           <b-field label="นามสกุล">
             <b-input v-model="profile.lastname"></b-input>
           </b-field>
+          <b-field label="รหัสนักศึกษา" type="is-danger">
+            <b-input required v-model="profile.studentId"></b-input>
+          </b-field>
+          <b-field type="is-danger">
+            <b-select v-model="profile.group">
+              <option value="กลุ่มลำดับเลขคู่" key="เลขคู่">กลุ่มลำดับเลขคู่</option>
+              <option value="กลุ่มลำดับเลขคี่" key="เลขคี่">กลุ่มลำดับเลขคี่</option>
+            </b-select>
+          </b-field>
           <b-field label="ตำแหน่ง">
             <b-input v-model="profile.position"></b-input>
           </b-field>
@@ -48,6 +57,8 @@ export default {
       profile: {
         firstname: null,
         lastname: null,
+        studentId: null,
+        group: null,
         position: null,
         email: this.$store.state.user.email,
         affiliation: null,
@@ -103,6 +114,8 @@ export default {
           self.profile.lastname = data.lastname
           self.profile.position = data.position
           self.profile.title = data.title
+          self.profile.studentId = data.studentId
+          self.profile.group = data.group
         }
       })
     }
