@@ -19,9 +19,6 @@
           <b-table-column field="objective" label="วัตถุประสงค์" v-slot="props">
             {{ props.row.data.objective }}
           </b-table-column>
-          <b-table-column field="createdAt" label="เพิ่มเมื่อ" v-slot="props">
-            {{ props.row.data.createdAt.toDate().toLocaleString() }}
-          </b-table-column>
           <b-table-column field="id" width="40" v-slot="props">
             <a class="button is-info is-rounded"
                @click="$router.push({ name: 'UserQuestionList', params: { programId:$route.params.programId,
@@ -55,6 +52,8 @@
 <script>
 import NavMenu from "../../components/navMenu";
 import {auth, db} from "../../firebase";
+import Swal from "sweetalert2";
+
 
 export default {
   name: "UserSessionList",
@@ -65,18 +64,78 @@ export default {
       lessonId: null,
       sessions: [],
       isLoggedIn: false,
-      isLoading: true
+      isLoading: true,
+      sesAnswer: null,
+      setAnswer: null,
+      gsRecordId: null,
+    }
+  },
+  methods: {
+    ask(ses, set) {
+      const self = this
+      Swal.fire({
+        title: "Set Your Goal",
+        html: `
+        <p>${ses}</p>
+        <div class="field">
+          <div class="control">
+            <input id="ses" required type="number" class="input">
+          </div>
+        </div>
+        <p>${set}</p>
+        <div class="field">
+          <div class="control">
+            <input id="set" required type="number" class="input">
+          </div>
+        </div>
+        `,
+  allowOutsideClick: false,
+  allowEscapeKey: false,
+  confirmButtonText: "Go",
+  showLoaderOnConfirm: true,
+  preConfirm: async () => {
+    const ses = document.getElementById('ses').value
+    const set = document.getElementById('set').value
+    if (ses && set) {
+      self.$store.dispatch('setLessonId', self.lessonId)
+      self.$store.dispatch('setLessonSES', ses)
+      self.$store.dispatch('setLessonSET', set)
+      self.$store.dispatch('setLessonTET', self.lesson.tet)
+      self.$store.dispatch('setLessonTES', self.lesson.tes)
+      self.$store.dispatch('setLessonStartDateTime')
+    } else {
+      Swal.showValidationMessage('You must answer all questions!')
+    }
+  },
+}).then((result) => {
+  if (result.isConfirmed) {
+    Swal.fire({
+      title: `Success`,
+      text: `Ok, you can start.`
+    });
+  }
+      })
+    },
+    start() {
     }
   },
   mounted() {
     const self = this
     if (auth.currentUser) {
-      this.isLoggedIn = true
+      self.isLoggedIn = true
     }
-    this.lessonId = this.$route.params.lessonId
-    db.collection('lessons').doc(this.lessonId).get().then((snapshot)=>{
+    self.lessonId = self.$route.params.lessonId
+    db.collection('lessons').doc(self.lessonId).get().then((snapshot)=>{
       if (snapshot.exists) {
         self.lesson = snapshot.data()
+        if (self.$store.state.lessonId != self.lessonId && self.$store.state.profile.group === "กลุ่มลำดับเลขคี่") {
+          if (self.$store.state.recordId) {
+            db.collection('records').doc(self.$store.state.recordId).update({
+              end: new Date()
+            }).then(()=>self.$store.dispatch("setRecordId", null))
+          }
+          self.ask(self.lesson.ses, self.lesson.set)
+        }
       }
     })
     db.collection('sessions')

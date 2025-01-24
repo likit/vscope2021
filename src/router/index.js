@@ -277,7 +277,7 @@ const routes = [
         path: '/user/programs/:programId/lessons/:lessonId/sessions/:sessionId/questions',
         name: 'UserQuestionList',
         meta: {
-            title: 'Questions',
+            title: 'User Question List',
             requiresAuth: true
         },
         component: () => import('../views/user/QuestionList.vue')

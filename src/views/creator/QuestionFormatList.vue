@@ -13,9 +13,9 @@
       <div class="column">
         <div class="panel is-link">
           <div class="panel-block">
-            <a>
+            <router-link :to="{name: 'QuestionInfo', params: {sessionId: sessionId}}">
               MCQ with Images and Videos Support
-            </a>
+            </router-link>
           </div>
           <div class="panel-block">
             <a>

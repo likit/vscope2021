@@ -24,8 +24,7 @@
             </b-table-column>
             <b-table-column field="id" width="40" v-slot="props">
               <a class="button is-info is-rounded"
-                 @click="$router.push({ name: 'UserSessionList',
-                   params: {programId: programId, lessonId: props.row.id}})">
+                 @click="start(props.row.id)">
                 <span class="icon">
                     <i class="fas fa-chevron-circle-right"></i>
                 </span>
@@ -55,6 +54,7 @@
 <script>
 import {db, auth} from '../../firebase'
 import NavMenu from "../../components/navMenu";
+import Swal from 'sweetalert2';
 
 export default {
   name: "UserLessonList",
@@ -65,10 +65,52 @@ export default {
       programId: null,
       lessons: [],
       isLoggedIn: false,
-      isLoading: true
+      isLoading: true,
+      lesson: null,
     }
   },
   computed: {
+  },
+  methods: {
+    start (lessonId) {
+      const self = this
+      db.collection('lessons').doc(lessonId).get().then((snapshot)=>{
+        if (snapshot.exists) {
+          self.lesson = snapshot.data()
+        }
+      }).then(()=>{
+        if (self.lesson.requiredSessionId) {
+          db.collection('session_records')
+              .where('sessionId', '==', self.lesson.requiredSessionId)
+              .where('email', '==', self.$store.state.user.email)
+              .where('pass', '==', true)
+              .get().then((querySnapshot)=>{
+                if (!querySnapshot.empty) {
+                  self.$router.push({
+                    name: "UserSessionList",
+                    params: {
+                      programId: self.programId,
+                      lessonId: lessonId,
+                    }
+                  })
+                } else {
+                  Swal.fire({
+                    title: 'Access Denied',
+                    text: `คุณต้องผ่านบทเรียนที่บังคับก่อนเริ่มทำบทเรียนนี้`
+                  })
+                }
+          })
+        } else {
+          self.$router.push({
+            name: "UserSessionList",
+            params: {
+              programId: self.programId,
+              lessonId: lessonId,
+            }
+          })
+        }
+      })
+    }
   },
   beforeMount() {
     let self = this

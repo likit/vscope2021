@@ -33,9 +33,16 @@ const store = new Vuex.Store({
         user: null,
         profile: {},
         sessionId: null,
+        lessionId: null,
         recordId: null,
+        sesAnswer: null,
+        setAnswer: null,
+        tet: null,
+        tes: null,
+        svsAnswer: null,
         questions: [],
         answers: [],
+        lessonStartDateTime: null,
         isAdmin: false
     },
     getters: {
@@ -56,8 +63,29 @@ const store = new Vuex.Store({
         setSessionId(state, Id) {
             state.sessionId = Id
         },
+        setLessonId(state, Id) {
+            state.lessonId = Id
+        },
         setRecordId(state, Id) {
             state.recordId = Id
+        },
+        setSesAnswer(state, answer) {
+            state.sesAnswer = answer
+        },
+        setSetAnswer(state, answer) {
+            state.setAnswer = answer
+        },
+        setSvsAnswer(state, answer) {
+            state.svsAnswer = answer
+        },
+        setTet(state, answer) {
+            state.tet = answer
+        },
+        setTes(state, answer) {
+            state.tes = answer
+        },
+        setLessonStartDateTime(state) {
+            state.lessonStartDateTime = new Date()
         },
         addQuestion(state, question) {
             state.questions.push(question)
@@ -83,11 +111,13 @@ const store = new Vuex.Store({
             state.sessionId = null
             state.questions = []
             state.answers = []
+            state.sesAnswer = null
+            state.setAnswer = null
+            state.setLessonStartDateTime = null
         }
     },
     actions: {
         async loadQuestion({commit}, sessionId, shuffle=false) {
-            console.log(shuffle)
             commit('clearQuestions')
             await db.collection('questions')
                 .where('sessionId', '==', sessionId)
@@ -155,8 +185,29 @@ const store = new Vuex.Store({
         setSessionId({commit}, sessionId) {
             commit('setSessionId', sessionId)
         },
+        setLessonId({commit}, lessonId) {
+            commit('setLessonId', lessonId)
+        },
         setRecordId({commit}, payload) {
             commit('setRecordId', payload)
+        },
+        setLessonSES({commit}, answer) {
+            commit('setSesAnswer', answer)
+        },
+        setLessonSET({commit}, answer) {
+            commit('setSetAnswer', answer)
+        },
+        setLessonSVS({commit}, answer) {
+            commit('setSvsAnswer', answer)
+        },
+        setLessonTET({commit}, answer) {
+            commit('setTet', answer)
+        },
+        setLessonTES({commit}, answer) {
+            commit('setTes', answer)
+        },
+        setLessonStartDateTime({commit}) {
+            commit('setLessonStartDateTime')
         },
         setProfile({commit}, profile) {
             commit('setProfile', profile)

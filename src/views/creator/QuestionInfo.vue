@@ -139,6 +139,7 @@ export default {
       sessionId: null,
       mediaId: null,
       media: null,
+      videoUrl: null,
       video: {},
       queue: null,
       stage: null,
@@ -152,7 +153,6 @@ export default {
       point: 0,
       title: null,
       pin: null,
-      videoURL: null,
     }
   },
   mounted() {
@@ -235,7 +235,7 @@ export default {
           y: this.y,
           point: this.point,
           creator: auth.currentUser.email,
-          videoURL: this.videoURL,
+          videoUrl: this.videoUrl,
           updatedAt: new Date()
         }).then(()=>{
           this.$buefy.toast.open({

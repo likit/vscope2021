@@ -6,23 +6,16 @@
           <h1 class="title has-text-centered">
             ข้อที่ {{ question.no }}) {{ question.title }}
           </h1>
-          <h2 class="subtitle has-text-centered is-size-6" v-if="question.updatedAt">
-            <span>โดย {{ question.creator }}</span>
-            &ensp;
-            <span class="icon">
-              <i class="far fa-clock"></i>
-            </span>
-            <span>{{ question.updatedAt.toLocaleString() }}</span>
-          </h2>
         </div>
       </div>
       <div class="columns">
         <div class="column">
           <div class="tile is-ancestor">
             <div class="tile">
-              <div class="tile is-parent is-vertical">
+              <div class="tile is-parent is-vertical" v-if="question.videoUrl || hasMedia">
                 <div class="tile is-child">
                   <video :src="video.fileUrl" v-if="video.fileUrl" controls></video>
+                  <iframe v-if="question.videoUrl" width="560" height="315" :src="question.videoUrl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 </div>
                 <div class="tile is-child notification is-light" v-if="isMediaMissing === false">
                   <canvas id="imageCanvas" ref="imageCanvasEdit" width="800" height="800"></canvas>
@@ -71,7 +64,7 @@
                       <span class="icon">
                          <i class="far fa-times-circle"></i>
                       </span>
-                      <span>End</span>
+                      <span>Cancel</span>
                     </button>
                     <button class="button is-info" @click="submit">
                       <span class="icon">
@@ -84,6 +77,14 @@
               </div>
             </div>
           </div>
+          <h2 class="subtitle has-text-centered is-size-6" v-if="question.updatedAt">
+            <span>โดย {{ question.creator }}</span>
+            &ensp;
+            <span class="icon">
+              <i class="far fa-clock"></i>
+            </span>
+            <span>{{ question.updatedAt.toLocaleString() }}</span>
+          </h2>
         </div>
       </div>
     </section>
@@ -93,6 +94,7 @@
 <script>
 import {db} from "../../firebase";
 import {mapState} from "vuex";
+import Swal from "sweetalert2";
 
 export default {
   name: "UserQuestion",
@@ -105,16 +107,18 @@ export default {
       question: {
         choices: [],
       },
+      session: null,
       queue: null,
       stage: null,
       bmp: null,
       pin: null,
       answer: null,
       video: {},
+      hasMedia: false,
     }
   },
   computed: {
-    ...mapState(['questions', 'answers']),
+    ...mapState(['questions', 'answers', 'score']),
   },
   watch: {
     '$route.params.questionNo': function () {
@@ -159,6 +163,7 @@ export default {
       })
     },
     submit () {
+      const self = this
       if (this.answers.length === 0) {
         this.$buefy.dialog.alert('คุณยังไม่ได้เริ่มทำชุดคำถามนี้ หากต้องการยกเลิกให้คลิกที่ปุ่ม End')
         return
@@ -175,18 +180,86 @@ export default {
           let submittedAt = new Date()
           db.collection('records')
               .doc(this.$store.state.recordId).update({
-            answers: this.answers,
-            end: submittedAt,
-            submittedAt: submittedAt
+                answers: this.answers,
+                end: submittedAt,
+                submittedAt: submittedAt
               }
           ).then(()=>{
-            this.$buefy.toast.open({
-              message: "ระบบได้บันทึกคำตอบเรียบร้อยแล้ว",
-              type: "is-success"
-            })
-            this.$store.dispatch('setSessionId', null)
-            this.$store.dispatch('clearAnswers')
-            this.$router.push({ name: 'UserProgramList' })
+            // this.$buefy.toast.open({
+            //   message: "ระบบได้บันทึกคำตอบเรียบร้อยแล้ว",
+            //   type: "is-success"
+            // })
+            let srs = 0
+            db.collection('session_records')
+                .where('sessionId', '==', self.$store.state.sessionId)
+                .where('email', '==', self.$store.state.user.email)
+                .get().then((querySnapshot)=>{
+                  querySnapshot.docs.forEach((snapshot)=>{
+                    let data = snapshot.data()
+                    srs = data.attempts + 1
+                    let totalScore = self.answers.filter((d) => d.answer == d.key)
+                    console.log(`Total score ${totalScore}`)
+                    console.log(`Total score is ${totalScore.length}`)
+                    let pass = totalScore >= self.session.passingScore ? true : false
+                    db.collection('session_records').doc(snapshot.id).update({attempts: data.attempts + 1, pass: pass})
+                  })
+                }).then(() => {
+                  if (this.$store.state.profile.group == "กลุ่มลำดับเลขคี่") {
+                    let diff = (submittedAt.getTime() - this.$store.state.lessonStartDateTime.getTime())/1000
+                    diff /= 60
+                    let srt = Math.round(diff) 
+                    let timeMessage = ""
+                    let evalMessage = ""
+                    let tet = this.$store.state.tet
+                    let tes = this.$store.state.tes
+                    let set = this.$store.state.setAnswer
+                    let ses = this.$store.state.sesAnswer
+                    let svs = this.$store.state.svsAnswer
+                    console.log(set, srt, tet, srt, srs)
+                    if (set - srt >= 0 && tet - srt >= 0) {
+                      timeMessage = `คุณควบคุมเวลาได้สมบูรณ์แบบและเรียนจบในเวลาที่ครูคาดหวัง`
+                    } else if (set - srt >= 0 && tet - srt < 0) {
+                      timeMessage = `คุณควบคุมการเรียนรู้ได้อย่างถูกต้องตามที่คุณคาดหวัง แต่ใช้เวลาการเรียนรู้เกินกว่าที่อาจารย์คาดหมาย โปรดพยายามปรับปรุงประสิทธิภาพในการเรียนรู้ของคุณ`
+                    } else if (set - srt < 0 && tet - srt >= 0) {
+                      timeMessage = `คุณควบคุมเวลาเรียนได้อย่างสมบูรณ์แบบตามความคาดหวังของครู
+      แต่ดูเหมือนว่าเวลาในการเรียนรู้ที่คุณคาดหวังนั้นค่อนข้างมากแตกต่างจากเวลาการเรียนรู้ที่คุณใช้ไป โปรดปรับความคาดหวังของคุณให้ตรงกับความสามารถของคุณ
+      `
+                    } else if (set - srt < 0 && tet - srt < 0) {
+                      timeMessage = `เวลาการเรียนรู้ของคุณช้ากว่าที่ทั้งครูและคุณคาดหวังไว้มาก
+      โปรดพยายามปรับปรุงประสิทธิภาพการเรียนรู้ของคุณและค้นหาสาเหตุที่ทำให้เกิดการเรียนรู้ที่ช้า
+      `
+                    }
+                    if (ses - svs > 0 && tes - srs <= 0) {
+                      evalMessage = `คุณทำแบบทดสอบได้ดีมาก แต่ดูเหมือนว่าคุณจะไม่รู้สึกมั่นใจ
+      ประสิทธิภาพการเรียนรู้ของคุณ พยายามค้นหาปัญหาหรือพูดคุยกับครู
+      `
+                    } else if (ses - svs > 0 && tes - srs > 0) {
+                      evalMessage = `ดูเหมือนว่าคุณไม่รู้สึกมั่นใจเกี่ยวกับการเรียนรู้นี้และ
+      ประสิทธิภาพการเรียนรู้ของคุณไม่ดีเท่าที่ควร โปรดศึกษาสื่อการเรียนรู้อีกครั้งและถามอาจารย์เกี่ยวกับสิ่งที่คุณไม่สามารถเข้าใจได้
+      `
+                    } else if (ses - svs <= 0 && tes - srs <= 0) {
+                      evalMessage = `คุณทำข้อสอบได้ดีมาก และรู้สึกมั่นใจกับผลงานของตัวเอง ทำต่อไป!`
+                    } else if (ses - svs <= 0 && tes - srs >0) {
+                      evalMessage = `ดูเหมือนว่าคุณจะรู้สึกมั่นใจกับการเรียนรู้ของคุณ แต่คุณทำแบบทดสอบได้ไม่ดีนัก โปรดศึกษาสื่อการเรียนรู้อีกครั้งและค้นหาว่าสิ่งใดที่คุณมีความเข้าใจไม่ถูกต้อง`
+                    }
+
+                    Swal.fire({
+                      title: `Feedback`,
+                      html: `
+                      <h1 class="title is-size-4">Time Management</h1>
+                      <p>${timeMessage}</p>
+                      <h1 class="title is-size-4">Performance</h1>
+                      <p>${evalMessage}</p>
+                      `
+                    }).then(()=>{
+                        this.$router.push({ name: 'UserProgramList' })
+                    })
+                  } else {
+                        this.$router.push({ name: 'UserProgramList' })
+                  }
+                  this.$store.dispatch('setSessionId', null)
+                  this.$store.dispatch('clearAnswers')
+                })
           })
         }
       })
@@ -207,16 +280,21 @@ export default {
       } catch (err) {
         console.log('pass')
       }
+      db.collection('sessions').doc(this.question.sessionId).get().then((snapshot) => {
+        this.session = snapshot.data()
+      })
       if (this.question.videoId) {
         db.collection('video').doc(this.question.videoId).get().then((snapshot) => {
           if (snapshot.exists) {
             this.video = snapshot.data()
+            this.hasMedia = true
           }
         })
       }
       if (this.question.mediaId) {
         db.collection('media').doc(this.question.mediaId).get().then((snapshot) => {
           if (snapshot.exists) {
+            this.hasMedia = true
             this.queue.loadManifest(
                 [
                   {
@@ -303,6 +381,8 @@ export default {
         })
       }
       this.answer = null
+    },
+    giveFeedback () {
     },
     handleComplete() {
       let image = this.queue.getResult('image')

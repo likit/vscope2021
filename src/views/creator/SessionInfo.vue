@@ -121,7 +121,7 @@ export default {
         let question_ = {
           id: q.id,
           data: q.data(),
-          routeName: ''
+          routeName: 'QuestionEditForm'
         }
         switch(question_.data.format) {
           case 'PhlebotomySim':

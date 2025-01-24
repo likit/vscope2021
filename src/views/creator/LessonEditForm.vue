@@ -19,6 +19,21 @@
         <b-field label="เผยแพร่">
           <b-switch v-model="published"></b-switch>
         </b-field>
+        <b-field label="Goal setting question">
+          <b-input type="textarea" v-model="ses"></b-input>
+        </b-field>
+        <b-field label="Time management question">
+          <b-input type="textarea" v-model="set"></b-input>
+        </b-field>
+        <b-field label="TET">
+          <b-input type="number" v-model="tet"></b-input>
+        </b-field>
+        <b-field label="TES">
+          <b-input type="number" v-model="tes"></b-input>
+        </b-field>
+        <b-field label="Prerequisite Session ID">
+          <b-input type="textarea" v-model="requiredSessionId"></b-input>
+        </b-field>
         <div class="buttons is-centered">
           <button class="button is-light" @click="$router.push({ name: 'ProgramInfo', params: { programId: $route.params.programId }})">
             <span class="icon">
@@ -54,7 +69,12 @@ export default {
       programId: null,
       objective: null,
       name: null,
-      number: null
+      number: null,
+      ses: "",
+      set: "",
+      tes: null,
+      tet: null,
+      requiredSessionId: null,
     }
   },
   computed: {
@@ -73,6 +93,11 @@ export default {
           this.objective = data.objective
           this.published = data.published || false
           this.number = data.number
+          this.ses = data.ses || ""
+          this.set = data.set || ""
+          this.tet = data.tet || null
+          this.tes = data.tes || null
+          this.requiredSessionId = data.requiredSessionId || null
         }
       })
     }
@@ -86,6 +111,11 @@ export default {
           creator: auth.currentUser.email,
           published: this.published,
           objective: this.objective,
+          ses: this.ses,
+          set: this.set,
+          tes: this.tes,
+          tet: this.tet,
+          requiredSessionId: this.requiredSessionId,
           number: this.number,
           createdAt: new Date()
         }).then(()=>{
@@ -106,6 +136,11 @@ export default {
           published: this.published,
           objective: this.objective,
           number: this.number,
+          ses: this.ses,
+          set: this.set,
+          tes: this.tes,
+          tet: this.tet,
+          requiredSessionId: this.requiredSessionId,
         }).then(()=>{
           this.$buefy.toast.open({
             message: 'Data saved successfully',

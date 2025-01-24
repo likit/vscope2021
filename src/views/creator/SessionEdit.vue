@@ -16,7 +16,7 @@
           <b-input v-model="objective" type="textarea"></b-input>
         </b-field>
         <b-field label="รูปแบบคำถาม">
-          <b-select v-model="format" placeholder="Select the image">
+          <b-select v-model="format" placeholder="Select the format">
             <option v-for="f in formatList" :value="f" :key="f">
               {{ f }}
             </option>
@@ -31,11 +31,20 @@
         <b-field label="จำนวนคำถามที่แสดง" message="Default is all questions.">
           <b-input v-model="numberDisplayQuestion" type="number"></b-input>
         </b-field>
+        <b-field label="เกณฑ์ผ่าน" message="Passing score">
+          <b-input v-model="passingScore" type="number"></b-input>
+        </b-field>
         <b-field label="เรียงคำถามให้ถูกต้องตามลำดับ">
           <b-switch v-model="orderingAnswers"></b-switch>
         </b-field>
         <b-field label="เฉลยการเรียงลำดับ">
           <b-taginput v-model="orderingAnswersKey" icon="label" placeholder="เพิ่มรายการ"></b-taginput>
+        </b-field>
+        <b-field label="บันทึกคำตอบ">
+          <b-switch v-model="createRecord"></b-switch>
+        </b-field>
+        <b-field label="คำถามเพื่อประเมินตนเอง">
+          <b-input type="textarea" v-model="svsQuestion"></b-input>
         </b-field>
         <div class="buttons is-centered">
           <button class="button is-light"
@@ -67,7 +76,7 @@ export default {
   components: {NavMenu},
   data() {
     return {
-      formatList: ["MCQ", "Ordering", "Phlebotomy Simulation"],
+      formatList: ["MCQ", "True/False", "Ordering", "Phlebotomy Simulation"],
       name: null,
       objective: null,
       lessonId: null,
@@ -77,6 +86,9 @@ export default {
       orderingAnswers: null,
       orderingAnswersKey: [],
       format: "",
+      createRecord: null,
+      svsQuestion: null,
+      passingScore: null,
     }
   },
   computed: {
@@ -92,13 +104,16 @@ export default {
         if (snapshot.exists) {
           let data = snapshot.data()
           this.name = data.name
-          this.format = data.format
+          this.format = data.format || ""
           this.objective = data.objective
-          this.published = data.published || false
-          this.randomQuestion = data.randomQuestion || false
+          this.published = data.published == null ? false : data.published
+          this.randomQuestion = data.randomQuestion == null ? false : data.randomQuestion
           this.numberDisplayQuestion = data.numberDisplayQuestion || null
-          this.orderingAnswers = data.orderingAnswers
-          this.orderingAnswersKey = data.orderingAnswersKey
+          this.orderingAnswers = data.orderingAnswers == null ? false : data.orderingAnswers
+          this.orderingAnswersKey = data.orderingAnswersKey == null ? [] : data.orderingAnswersKey
+          this.createRecord = data.createRecord == null ? false : data.createRecord
+          this.svsQuestion = data.svsQuestion || null
+          this.passingScore = data.passingScore || null
         }
       })
     }
@@ -117,7 +132,10 @@ export default {
           numberDisplayQuestion: self.numberDisplayQuestion,
           orderingAnswers: self.orderingAnswers,
           orderingAnswersKey: self.orderingAnswersKey,
+          createRecord: self.createRecord,
           format: self.format,
+          svsQuestion: self.svsQuestion,
+          passingScore: self.passingScore,
           createdAt: new Date(),
         }).then((docRef)=>{
           self.$buefy.toast.open({
@@ -140,6 +158,9 @@ export default {
           numberDisplayQuestion: self.numberDisplayQuestion,
           orderingAnswers: self.orderingAnswers,
           orderingAnswersKey: self.orderingAnswersKey,
+          createRecord: self.createRecord,
+          passingScore: self.passingScore,
+          svsQuestion: self.svsQuestion,
           format: self.format,
         }).then(()=>{
           this.$buefy.toast.open({

@@ -79,6 +79,7 @@
 import NavMenu from "../../components/navMenu";
 import {db} from "../../firebase";
 import {mapState} from "vuex";
+import Swal from "sweetalert2";
 
 export default {
   name: "UserQuestionList",
@@ -86,6 +87,7 @@ export default {
   data() {
     return {
       sessionId: null,
+      lessonId: null,
       session: null,
       isLoggedIn: false,
       isLoading: true,
@@ -95,6 +97,39 @@ export default {
     ...mapState(['questions'])
   },
   methods: {
+    ask(svs) {
+      const self = this
+      Swal.fire({
+        title: "Set Your Goal",
+        html: `
+        <p>${svs}</p>
+        <div class="field">
+          <div class="control">
+            <input id="svs" required type="number" class="input">
+          </div>
+        </div>
+        `,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        preConfirm: async () => {
+          const svs = document.getElementById('svs').value
+          if (svs) {
+            self.$store.dispatch('setLessonSVS', svs)
+          } else {
+            Swal.showValidationMessage('You must answer the question!')
+          }
+        },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: `Success`,
+            text: `Ok, you can start.`
+          })
+        }
+        })
+    },
     startNew() {
       let self = this
       // end the current session
@@ -103,15 +138,22 @@ export default {
             .doc(self.$store.state.recordId).update({ end: new Date() })
       }
 
+      self.ask(self.session.svsQuestion)
+
       // create a new record
       db.collection('records').add({
         email: self.$store.state.user.email,
         start: new Date(),
         sessionId: self.$route.params.sessionId,
+        goals: {
+          ses: self.$store.state.sesAnswer,
+          set: self.$store.state.setAnswer,
+        },
         answers: [],
       }).then((recordRef) => {
         self.$store.dispatch('setRecordId', recordRef.id)
         self.$store.dispatch('clearAnswers')
+        self.$store.dispatch('setLessonId', self.session.lessonId)
         self.$store.dispatch('setSessionId', self.$route.params.sessionId).then(() => {
           if (self.session.orderingAnswers) {
             self.$router.push({
@@ -121,7 +163,8 @@ export default {
                 programId: self.$route.params.programId,
                 sessionId: self.sessionId,
                 recordId: recordRef.id,
-                questionNo: '0'
+                start: self.$store.state.lessonStartDateTime,
+                questionNo: '0',
               }
             })
           } else if (self.session.format == "Phlebotomy Simulation") {
@@ -220,6 +263,19 @@ export default {
       this.isLoading = false
       this.$store.dispatch('loadQuestion', this.sessionId, this.session.randomQuestion)
     })
+    db.collection('session_records')
+        .where('sessionId', '==', this.$route.params.sessionId)
+        .where('email', '==', this.$store.state.user.email)
+        .get().then((querySnapshot)=>{
+          if(querySnapshot.empty) {
+            db.collection('session_records').add({
+              email: this.$store.state.user.email,
+              sessionId: this.$route.params.sessionId,
+              pass: false,
+              attempts: 0
+            })
+          }
+        })
   }
 }
 </script>
