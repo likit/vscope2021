@@ -12,22 +12,6 @@ function sortQuestions(a, b) {
     }
 }
 
-function shuffle(array) {
-    let currentIndex = array.length;
-
-    // While there remain elements to shuffle...
-    while (currentIndex != 0) {
-
-        // Pick a remaining element...
-        let randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex--;
-
-        // And swap it with the current element.
-        [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex], array[currentIndex]];
-    }
-}
-
 const store = new Vuex.Store({
     state: {
         user: null,
@@ -99,9 +83,6 @@ const store = new Vuex.Store({
         sortQuestions(state) {
             state.questions.sort(sortQuestions)
         },
-        shuffleQuestions(state) {
-            shuffle(state.questions)
-        },
         setAdmin(state, payload) {
             state.isAdmin = payload
         },
@@ -117,7 +98,7 @@ const store = new Vuex.Store({
         }
     },
     actions: {
-        async loadQuestion({commit}, sessionId, shuffle=false) {
+        async loadQuestion({commit}, sessionId) {
             commit('clearQuestions')
             await db.collection('questions')
                 .where('sessionId', '==', sessionId)
@@ -130,12 +111,6 @@ const store = new Vuex.Store({
                             })
                         }
                     })
-                    if (shuffle) {
-                        commit('shuffleQuestions')
-                        console.log('questions have been shuffled.')
-                    } else {
-                        commit('sortQuestions')
-                    }
                 })
         },
         async signIn({commit}) {

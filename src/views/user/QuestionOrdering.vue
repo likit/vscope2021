@@ -134,6 +134,26 @@ export default {
         self.$set(self.userAnswers, index, next_question)
       }
     },
+    shuffle(array) {
+      const self = this
+      let currentIndex = array.length;
+
+      // While there remain elements to shuffle...
+      while (currentIndex != 0) {
+
+          // Pick a remaining element...
+          let randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex--;
+
+          // And swap it with the current element.
+          let currItem = array[currentIndex]
+          let randomItem = array[randomIndex]
+          self.$set(array, currentIndex, randomItem)
+          self.$set(array, randomIndex, currItem)
+          // [array[currentIndex], array[randomIndex]] = [
+          // array[randomIndex], array[currentIndex]];
+      }
+    },
     submit () {
       const self = this
       self.$buefy.dialog.confirm({
@@ -240,7 +260,7 @@ export default {
         self.session = snapshot.data()
       }
     }).then(()=>{
-      self.$store.dispatch('loadQuestion', self.sessionId, self.session.randomQuestion).then(function () {
+      self.$store.dispatch('loadQuestion', self.sessionId).then(function () {
         self.questions.forEach((q)=>{
           let data = q.data
           let mediaUrl = null
@@ -259,6 +279,9 @@ export default {
           }
         })
       })
+      if (self.session.randomQuestion) {
+        self.shuffle(self.userAnswers)
+      }
       self.isLoading = false
     })
   }
