@@ -21,7 +21,7 @@
             </button>
           </div>
         </div>
-        <b-table :data="sessions" :loading="isLoading">
+        <b-table :data="sessions" paginated per-page="10" :loading="isLoading">
           <b-table-column field="name" label="Title" v-slot="props">
             {{ props.row.data.name }}
           </b-table-column>
@@ -109,7 +109,7 @@ export default {
       }
     })
     db.collection('sessions')
-        .where('lessonId', '==', self.lessonId).get().then((snapshot)=>{
+        .where('lessonId', '==', self.lessonId).orderBy('number').get().then((snapshot)=>{
       snapshot.docs.forEach((d)=>{
         self.sessions.push({
           id: d.id,

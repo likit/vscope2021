@@ -11,6 +11,7 @@
           <h2 class="subtitle has-text-centered">
             ชื่อ {{ session.name }}
           </h2>
+          {{ sessionId }}
           <div class="buttons is-centered">
             <div v-if="editable">
               <button class="button is-light is-primary"

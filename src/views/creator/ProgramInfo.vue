@@ -21,7 +21,7 @@
             </button>
           </div>
         </div>
-        <b-table :data="lessons" :loading="isLoading" paginated per-page="5">
+        <b-table :data="lessons" :loading="isLoading" paginated per-page="10">
           <b-table-column field="number" label="No." v-slot="props">
             {{ props.row.data.number }}
           </b-table-column>

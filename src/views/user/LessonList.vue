@@ -12,7 +12,7 @@
               ชื่อ {{ program.name }}
             </h2>
           </div>
-          <b-table :data="lessons" :loading="isLoading">
+          <b-table :data="lessons" paginated per-page="10" :loading="isLoading">
             <b-table-column field="name" label="ชื่อบทเรียน" v-slot="props">
               {{ props.row.data.name }}
             </b-table-column>
@@ -125,7 +125,7 @@ export default {
     })
     // TODO: add a filter for published lesson only
     db.collection('lessons')
-        .where('programId', '==', self.programId).get().then((snapshot)=>{
+        .where('programId', '==', self.programId).orderBy('number').get().then((snapshot)=>{
       snapshot.docs.forEach((d)=>{
         if (d.data().published === true) {
           self.lessons.push({
