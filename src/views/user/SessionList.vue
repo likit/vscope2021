@@ -3,7 +3,7 @@
   <nav-menu :is-logged-in="isLoggedIn" @logout="isLoggedIn=false"></nav-menu>
   <section class="section">
     <div class="columns">
-      <div class="column is-three-fifths is-offset-2">
+      <div class="column">
         <div v-if="lesson !== null">
           <h1 class="title has-text-centered">
             บทเรียน

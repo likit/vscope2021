@@ -3,7 +3,7 @@
     <nav-menu :is-logged-in="isLoggedIn" @logout="isLoggedIn=false"></nav-menu>
     <section class="section">
       <div class="columns">
-        <div class="column is-three-fifths is-offset-2">
+        <div class="column">
           <h1 class="title">All Programs</h1>
           <b-table :data="programs" :loading="isLoading">
             <b-table-column field="name" label="Name" width="40" v-slot="props">

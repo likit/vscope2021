@@ -202,7 +202,7 @@ export default {
                     let totalScore = self.answers.filter((d) => d.answer == d.key)
                     console.log(`Total score ${totalScore}`)
                     console.log(`Total score is ${totalScore.length}`)
-                    let pass = totalScore >= self.session.passingScore ? true : false
+                    let pass = totalScore.length >= self.session.passingScore ? true : false
                     db.collection('session_records').doc(snapshot.id).update({attempts: data.attempts + 1, pass: pass})
                   })
                 }).then(() => {
