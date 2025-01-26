@@ -12,6 +12,21 @@ function sortQuestions(a, b) {
     }
 }
 
+function shuffleQuestions(array) {
+    let currentIndex = array.length;
+
+    // While there remain elements to shuffle...
+    while (currentIndex != 0) {
+
+        // Pick a remaining element...
+        let randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+
+        // And swap it with the current element.
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
+}
+
 const store = new Vuex.Store({
     state: {
         user: null,
@@ -112,6 +127,15 @@ const store = new Vuex.Store({
                         }
                     })
                 })
+        },
+        async randomAndSliceQuestions({commit}, numOfQuestions) {
+            let allQuestions = store.state.questions
+            commit('clearQuestions')
+            shuffleQuestions(allQuestions)
+            let slicedQuestions = allQuestions.slice(0, numOfQuestions)
+            slicedQuestions.forEach((q)=>{
+                commit('addQuestion', q)
+            })
         },
         async signIn({commit}) {
             commit('setUser', auth.currentUser)

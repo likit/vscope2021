@@ -261,7 +261,11 @@ export default {
         this.session = snapshot.data()
       }
       this.isLoading = false
-      this.$store.dispatch('loadQuestion', this.sessionId, this.session.randomQuestion)
+      this.$store.dispatch('loadQuestion', this.sessionId).then(()=>{
+        if (this.session.numberDisplayQuestion && this.session.randomQuestion) {
+          this.$store.dispatch('randomAndSliceQuestions', this.session.numberDisplayQuestion)
+        }
+      })
     })
     db.collection('session_records')
         .where('sessionId', '==', this.$route.params.sessionId)
