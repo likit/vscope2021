@@ -138,7 +138,8 @@ export default {
             .doc(self.$store.state.recordId).update({ end: new Date() })
       }
 
-      self.ask(self.session.svsQuestion)
+      if (self.$store.state.profile.group == "กลุ่มลำดับเลขคี่")
+        self.ask(self.session.svsQuestion)
 
       // create a new record
       db.collection('records').add({

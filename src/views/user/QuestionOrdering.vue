@@ -174,6 +174,8 @@ export default {
               }
           ).then(()=>{
             let srs = 0
+            let pass
+            let result
             db.collection('session_records')
                 .where('sessionId', '==', self.$store.state.sessionId)
                 .where('email', '==', self.$store.state.user.email)
@@ -181,7 +183,8 @@ export default {
                   querySnapshot.docs.forEach((snapshot)=>{
                     let data = snapshot.data()
                     srs = data.attempts + 1
-                    let pass = self.compareTwoArrays(self.session.orderingAnswersKey, self.userAnswers.map((a)=>a.answer))
+                    pass = self.compareTwoArrays(self.session.orderingAnswersKey, self.userAnswers.map((a)=>a.answer))
+                    result = pass ? "ผ่าน" : "ไม่ผ่าน"
                     db.collection('session_records').doc(snapshot.id).update({attempts: data.attempts + 1, pass: pass})
                   })
                 }).then(() => {
@@ -196,7 +199,6 @@ export default {
                     let set = this.$store.state.setAnswer
                     let ses = this.$store.state.sesAnswer
                     let svs = this.$store.state.svsAnswer
-                    console.log(set, srt, tet, srt, srs)
                     if (set - srt >= 0 && tet - srt >= 0) {
                       timeMessage = `คุณควบคุมเวลาได้สมบูรณ์แบบและเรียนจบในเวลาที่ครูคาดหวัง`
                     } else if (set - srt >= 0 && tet - srt < 0) {
@@ -227,6 +229,8 @@ export default {
                     Swal.fire({
                       title: `Feedback`,
                       html: `
+                      <h1 class="title is-size-4">Result</h1>
+                      <p>${result}</p>
                       <h1 class="title is-size-4">Time Management</h1>
                       <p>${timeMessage}</p>
                       <h1 class="title is-size-4">Performance</h1>
@@ -236,7 +240,15 @@ export default {
                         this.$router.push({ name: 'UserProgramList' })
                     })
                   } else {
+                    Swal.fire({
+                      title: `Feedback`,
+                      html: `
+                      <h1 class="title is-size-4">Result</h1>
+                      <p>${result}</p>
+                      `
+                    }).then(()=>{
                         this.$router.push({ name: 'UserProgramList' })
+                    })
                   }
                   this.$store.dispatch('setSessionId', null)
                   this.$store.dispatch('clearAnswers')

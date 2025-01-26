@@ -134,7 +134,8 @@ export default {
               end: new Date()
             }).then(()=>self.$store.dispatch("setRecordId", null))
           }
-          self.ask(self.lesson.ses, self.lesson.set)
+          if (self.$store.state.profile.group == "กลุ่มลำดับเลขคี่")
+            self.ask(self.lesson.ses, self.lesson.set)
         }
       }
     })

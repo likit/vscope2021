@@ -192,6 +192,7 @@ export default {
             //   type: "is-success"
             // })
             let srs = 0
+            let totalScore = self.answers.filter((d) => d.answer == d.key)
             db.collection('session_records')
                 .where('sessionId', '==', self.$store.state.sessionId)
                 .where('email', '==', self.$store.state.user.email)
@@ -199,7 +200,6 @@ export default {
                   querySnapshot.docs.forEach((snapshot)=>{
                     let data = snapshot.data()
                     srs = data.attempts + 1
-                    let totalScore = self.answers.filter((d) => d.answer == d.key)
                     console.log(`Total score ${totalScore}`)
                     console.log(`Total score is ${totalScore.length}`)
                     let pass = totalScore.length >= self.session.passingScore ? true : false
@@ -248,6 +248,8 @@ export default {
                     Swal.fire({
                       title: `Feedback`,
                       html: `
+                      <h1 class="title is-size-4">Score</h1>
+                      <p>${totalScore.length}</p>
                       <h1 class="title is-size-4">Time Management</h1>
                       <p>${timeMessage}</p>
                       <h1 class="title is-size-4">Performance</h1>
@@ -257,7 +259,15 @@ export default {
                         this.$router.push({ name: 'UserProgramList' })
                     })
                   } else {
+                    Swal.fire({
+                      title: `Feedback`,
+                      html: `
+                      <h1 class="title is-size-4">Score</h1>
+                      <p>${totalScore.length} คะแนน</p>
+                      `
+                    }).then(()=>{
                         this.$router.push({ name: 'UserProgramList' })
+                    })
                   }
                   this.$store.dispatch('setSessionId', null)
                   this.$store.dispatch('clearAnswers')
