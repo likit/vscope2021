@@ -259,10 +259,12 @@ export default {
     db.collection('sessions').doc(this.sessionId).get().then((snapshot) => {
       if (snapshot.exists) {
         this.session = snapshot.data()
+        console.log(this.session.numberDisplayQuestion, this.session.randomQuestion)
       }
       this.isLoading = false
       this.$store.dispatch('loadQuestion', this.sessionId).then(()=>{
         if (this.session.numberDisplayQuestion && this.session.randomQuestion) {
+          console.log('randomize questions')
           this.$store.dispatch('randomAndSliceQuestions', this.session.numberDisplayQuestion)
         }
       })

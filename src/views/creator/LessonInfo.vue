@@ -10,6 +10,7 @@
           </h1>
           <h2 class="subtitle has-text-centered">
             ชื่อ {{ lesson.name }}
+            {{ $route.params.lessonId }}
           </h2>
           <div class="has-text-centered" v-if="editable">
             <button class="button is-light is-primary"
@@ -109,13 +110,15 @@ export default {
       }
     })
     db.collection('sessions')
-        .where('lessonId', '==', self.lessonId).orderBy('number').get().then((snapshot)=>{
-      snapshot.docs.forEach((d)=>{
-        self.sessions.push({
-          id: d.id,
-          data: d.data()
+        .where('lessonId', '==', self.$route.params.lessonId).get()
+        .then((querySnapshot)=>{
+          console.log(querySnapshot.empty)
+          querySnapshot.docs.forEach((docSnapshot)=>{
+            self.sessions.push({
+              id: docSnapshot.id,
+              data: docSnapshot.data()
+            })
         })
-      })
       this.isLoading = false
     })
   }

@@ -39,7 +39,7 @@
           <div class="buttons">
             <b-button :disabled="!tourniquetOn" v-on:click="rotateNeedle()">หมุนเข็ม</b-button>
             <b-button :disabled="bloodVolume < 10" v-on:click="rotateBloodTube()">Mix blood</b-button>
-            <b-button class="button is-success" :disabled="!done" @click="nextQuestion">
+            <b-button class="button is-success" @click="nextQuestion">
               <span>Next</span>
               <span class="icon">
                 <i class="fas fa-chevron-right"></i>
@@ -127,6 +127,21 @@ export default {
     this.loadData()
   },
   methods: {
+    reset () {
+      this.needleOriX = 500
+      this.needleOriY = 200
+      this.drawnX = null
+      this.drawnY = null
+      this.mixTimes = 0
+      this.answer = null
+      this.transporePut = false
+      this.depthMessage = ""
+      this.message = ""
+      this.bloodVolume = 0
+      this.tourniquetOn = false
+      this.hasCleaned = false
+      this.needleDepth = 0.0
+    },
     endSession () {
       this.$buefy.dialog.confirm({
         message: 'ท่านต้องการสิ้นสุดชุดทดสอบนี้และเริ่มชุดทดสอบใหม่ใช่หรือไม่',
@@ -179,6 +194,7 @@ export default {
             submittedAt: submittedAt
               }
           ).then(()=>{
+            this.reset()
             this.$buefy.toast.open({
               message: "ระบบได้บันทึกคำตอบเรียบร้อยแล้ว",
               type: "is-success"
@@ -209,7 +225,7 @@ export default {
       try {
         self.question.updatedAt = self.question.updatedAt.toDate()
       } catch (err) {
-        console.log('pass')
+        console.log(err)
       }
       self.loadArmWithTourniquetImage()
       self.loadArmWithoutTourniquetImage()
@@ -322,7 +338,6 @@ export default {
     loadCottonBallImage () {
       let self = this
       if (self.question.cottonBallMediaId) {
-        console.log("load cotton ball image")
         db.collection('media').doc(self.question.cottonBallMediaId).get().then((snapshot) => {
           if (snapshot.exists) {
             let media = snapshot.data()
@@ -436,7 +451,7 @@ export default {
         type: "is-success",
       })
       self.$router.push({
-        name: 'Question',
+        name: 'PhlebotomySimUser',
         params: {
           lessonId: self.$route.params.lessonId, programId: self.$route.params.programId,
           sessionId: self.$route.params.sessionId, questionNo: prev.toString()
@@ -456,6 +471,7 @@ export default {
           .doc(self.$store.state.recordId).update({
         answers: self.answers
       }).then(() => {
+        self.reset()
         self.$buefy.toast.open({
           message: "บันทึกคำตอบเรียบร้อย",
           type: "is-success",
@@ -468,7 +484,7 @@ export default {
       })
       if (next < self.questions.length) {
         self.$router.push({
-          name: 'Question',
+          name: 'PhlebotomySimUser',
           params: {
             lessonId: self.$route.params.lessonId, programId: self.$route.params.programId,
             sessionId: self.$route.params.sessionId, questionNo: next.toString()
@@ -530,7 +546,6 @@ export default {
       self.needleMedia.x = self.needleOriX
       self.needleMedia.y = self.needleOriY
       self.needleMedia.on("pressmove", function(event) {
-        console.log(self.armWithTouriquetMedia.visible)
         if (self.armWithTouriquetMedia.visible) {
           if (self.hasCleaned) {
             self.needleMedia.x = event.stageX
@@ -547,15 +562,12 @@ export default {
       self.tourniquetMedia = new self.createjs.Bitmap(tourniquetImageRef)
       self.tourniquetMedia.scale = 0.3
       self.tourniquetMedia.x = 500.0
-      self.tourniquetMedia.on("click", function() {
+      self.tourniquetMedia.on("click", function(e) {
+        console.log(e)
         if (self.armWithOutTouriquetMedia.visible) {
-          if (!self.drawnX && !self.drawnY) {
-            self.armWithOutTouriquetMedia.visible = false
-            self.armWithTouriquetMedia.visible = true
-            self.tourniquetOn = true
-          } else {
-            self.message = "การเจาะเลือดสิ้นสุดแล้ว"
-          }
+          self.armWithOutTouriquetMedia.visible = false
+          self.armWithTouriquetMedia.visible = true
+          self.tourniquetOn = true
         } else {
           if (self.bloodVolume == 10) {
             self.needleMedia.x = self.needleOriX
@@ -571,7 +583,6 @@ export default {
       self.cottonBallMedia = new self.createjs.Bitmap(cottonBallImageRef);
       self.stage.addChild(self.armWithTouriquetMedia)
       self.stage.addChild(self.armWithOutTouriquetMedia)
-      self.stage.addChild(self.tourniquetMedia)
       self.cottonBallMedia.scale = 0.1
       self.cottonBallMedia.x = 500
       self.cottonBallMedia.y = 300
@@ -588,12 +599,12 @@ export default {
       self.stage.addChild(self.cottonBallMedia)
       self.stage.addChild(self.transporeMedia)
       self.stage.addChild(self.bloodTubeMedia)
-      let cottonBoxImageRef = self.queue.getResult('cottonBoxImage')
-      self.cottonBoxMedia = new self.createjs.Bitmap(cottonBoxImageRef);
-      self.cottonBoxMedia.scale = 0.1
-      self.cottonBoxMedia.x = 500
-      self.cottonBoxMedia.y = 300
-      self.stage.addChild(self.cottonBoxMedia)
+      // let cottonBoxImageRef = self.queue.getResult('cottonBoxImage')
+      // self.cottonBoxMedia = new self.createjs.Bitmap(cottonBoxImageRef);
+      // self.cottonBoxMedia.scale = 0.1
+      // self.cottonBoxMedia.x = 500
+      // self.cottonBoxMedia.y = 300
+      // self.stage.addChild(self.cottonBoxMedia)
       self.drawLine1()
       self.drawLine2()
       self.drawLine3()
@@ -707,7 +718,6 @@ export default {
         }
       })
       self.line3.on("pressup", function () {
-        console.log("mouse up")
         if (!self.isDrawing) {
           self.line3.graphics.clear()
           self.line3.graphics.setStrokeStyle(self.question.line1Width)
@@ -722,6 +732,7 @@ export default {
       self.stage.addChild(self.line1)
       self.stage.addChild(self.line2)
       self.stage.addChild(self.line3)
+      self.stage.addChild(self.tourniquetMedia)
       self.stage.update()
   }
 }
