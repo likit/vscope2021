@@ -4,7 +4,7 @@
       <div class="columns">
         <div class="column">
           <h1 class="title has-text-centered">
-            ข้อที่ {{ question.no }}) {{ question.title }}
+            ข้อที่ {{ questionNo + 1 }}) {{ question.title }}
           </h1>
         </div>
       </div>
@@ -12,10 +12,11 @@
         <div class="column">
           <div class="tile is-ancestor">
             <div class="tile">
-              <div class="tile is-parent is-vertical" v-if="question.videoUrl || hasMedia">
+              <div class="tile is-parent is-vertical" v-if="question.videoUrl || hasMedia || imageUrl">
                 <div class="tile is-child">
                   <video :src="video.fileUrl" v-if="video.fileUrl" controls></video>
                   <iframe v-if="question.videoUrl" width="560" height="315" :src="question.videoUrl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                  <b-image :src="imageUrl" v-if="imageUrl"></b-image>
                 </div>
                 <div class="tile is-child notification is-light" v-if="isMediaMissing === false">
                   <canvas id="imageCanvas" ref="imageCanvasEdit" width="800" height="800"></canvas>
@@ -107,6 +108,7 @@ export default {
       question: {
         choices: [],
       },
+      imageUrl: null,
       session: null,
       queue: null,
       stage: null,
@@ -295,10 +297,11 @@ export default {
         db.collection('media').doc(this.question.mediaId).get().then((snapshot) => {
           if (snapshot.exists) {
             this.hasMedia = true
+            this.imageUrl = snapshot.data().fileUrl
             this.queue.loadManifest(
                 [
                   {
-                    src: snapshot.data().fileUrl,
+                    src: this.imageUrl,
                     crossOrigin: true,
                     id: "image",
                     type: "image"
