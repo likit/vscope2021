@@ -142,6 +142,13 @@
             </option>
           </b-select>
         </b-field>
+        <b-field label="รูป transpore">
+          <b-select v-model="question.transporeMediaId" placeholder="Select the image">
+            <option v-for="m in mediaList" :value="m.id" :key="m.id">
+              {{ m.data.name }}
+            </option>
+          </b-select>
+        </b-field>
         <div class="buttons is-centered">
           <button class="button is-light"
                   @click="$router.push({ name: 'SessionInfo', params: { sessionId: question.sessionId }})">
@@ -149,6 +156,12 @@
               <i class="fas fa-chevron-left"></i>
             </span>
             <span>Back</span>
+          </button>
+          <button class="button is-warning" @click="copyData">
+            <span class="icon">
+              <i class="far fa-copy"></i>
+            </span>
+            <span>Save as new</span>
           </button>
           <button class="button is-success" @click="saveData">Save</button>
         </div>
@@ -171,7 +184,6 @@ export default {
       question: {
         format: "PhlebotomySim",
         title: "",
-        id: null,
         armWithTourniquetMediaId: null,
         armWithTouriquetMedia: null,
         armWithOutTourniquetMediaId: null,
@@ -185,6 +197,7 @@ export default {
         needleBinMediaId: null,
         transporeMediaId: null,
         needleMediaId: null,
+        tubeMediaId: null,
         updatedAt: null,
         line1X1: null,
         line1Y1: null,
@@ -218,6 +231,31 @@ export default {
 
   },
   methods: {
+    copyData() {
+      const self = this
+      if (this.question.title) {
+        this.question.creator = auth.currentUser.email
+        this.question.updatedAt = new Date()
+        this.question.title += "(copy -- edit me!)"
+        db.collection("questions").add(this.question).then(() => {
+          self.$buefy.toast.open({
+            message: "บันทึกคำถามเรียบร้อย",
+            type: "is-success",
+          })
+          self.$router.push({name: "SessionInfo", params: {sessionId: self.question.sessionId}})
+        })
+      } else {
+        this.$buefy.dialog.alert({
+          message: 'กรุณากรอกข้อมูลในช่องที่จำเป็น',
+          type: 'is-danger',
+          hasIcon: true,
+          icon: 'times-circle',
+          iconPack: 'fa',
+          ariaRole: 'alertdialog',
+          ariaModal: true
+        })
+      }
+    },
     loadArmImage () {
       let self = this
       if (self.question.armWithTourniquetMediaId) {
@@ -298,15 +336,9 @@ export default {
     saveData () {
       let self = this
       if (self.questionId == null) {
-        db.collection('questions').add({
-          format: self.question.format,
-          title: self.title,
-          sessionId: self.sessionId,
-          armWithTourniquetMediaId: self.armWithTourniquetMediaId,
-          armWithOutTourniquetMediaId: self.armWithOutTourniquetMediaId,
-          creator: auth.currentUser.email,
-          updatedAt: new Date()
-        }).then(()=>{
+        self.updatedAt = new Date()
+        self.question.sessionId = self.sessionId
+        db.collection('questions').add(self.question).then(()=>{
           this.$buefy.toast.open({
             message: "บันทึกคำถามเรียบร้อย",
             type: "is-success",

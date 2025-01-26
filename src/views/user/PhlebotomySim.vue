@@ -4,7 +4,7 @@
       <div class="columns">
         <div class="column">
           <h1 class="title has-text-centered">
-            ข้อที่ {{ question.no }}) {{ question.title }}
+            ข้อที่ {{ questionNo + 1 }}) {{ question.title }}
           </h1>
           <h2 class="subtitle has-text-centered is-size-6" v-if="question.updatedAt">
             <span>โดย {{ question.creator }}</span>
@@ -38,6 +38,25 @@
           <p class="has-text-danger">{{ depthMessage }}</p>
           <div class="buttons">
             <b-button :disabled="!tourniquetOn" v-on:click="rotateNeedle()">หมุนเข็ม</b-button>
+            <b-button :disabled="bloodVolume < 10" v-on:click="rotateBloodTube()">Mix blood</b-button>
+            <b-button class="button is-success" :disabled="!done" @click="nextQuestion">
+              <span>Next</span>
+              <span class="icon">
+                <i class="fas fa-chevron-right"></i>
+              </span>
+            </b-button>
+            <button class="button is-danger" @click="endSession">
+              <span class="icon">
+                  <i class="far fa-times-circle"></i>
+              </span>
+              <span>Cancel</span>
+            </button>
+            <button class="button is-info" @click="submit">
+              <span class="icon">
+                <i class="fas fa-paper-plane"></i>
+              </span>
+              <span>Finish</span>
+            </button>
           </div>
         </div>
       </div>
@@ -75,31 +94,34 @@ export default {
       transporeMedia: null,
       bloodVolume: 0,
       needleDepth: 0.0,
-      answer: null,
       queue: null,
       stage: null,
       line1: null,
       line2: null,
       line3: null,
-      sessionId: null
+      sessionId: null,
+      needleOriX: 500,
+      needleOriY: 200,
+      drawnX: null,
+      drawnY: null,
+      mixTimes: 0,
+      answer: null,
+      transporePut: false
     }
   },
   computed: {
     ...mapState(['questions', 'answers']),
+    needleHasMoved () {
+      return (this.needleOriX !== this.needleMedia.x || this.needleOriY !== this.needleMedia.y)
+    },
+    done() {
+      return ((this.bloodVolume == 10) && this.hasCleaned && (this.mixTimes > 0) && (this.transporePut))
+    }
   },
   watch: {
     '$route.params.questionNo': function () {
       this.loadData(false)
     },
-    'answer': function (val) {
-      this.answer = val
-      this.answers[this.questionNo] = {
-        'answer': val,
-        'updatedAt': new Date(),
-        'questionId': this.questionId,
-        'key': this.question.answer
-      }
-    }
   },
   mounted() {
     this.loadData()
@@ -144,6 +166,12 @@ export default {
         confirmText: "ยืนยัน",
         onConfirm: () => {
           let submittedAt = new Date()
+          this.answers[this.questionNo] = {
+            'answer': this.done,
+            'updatedAt': new Date(),
+            'questionId': this.questionId,
+            'key': true,
+          }
           db.collection('records')
               .doc(this.$store.state.recordId).update({
             answers: this.answers,
@@ -188,6 +216,8 @@ export default {
       self.loadTourniquetImage()
       self.loadNeedleImage()
       self.loadCottonBallImage()
+      self.loadTransporeImage()
+      self.loadBloodTubeImage()
     },
     loadArmWithTourniquetImage () {
       let self = this
@@ -241,6 +271,26 @@ export default {
                     src: media.fileUrl,
                     crossOrigin: true,
                     id: "tourniquetImage",
+                    type: "image"
+                  },
+                ]
+            )
+          }
+        })
+      }
+    },
+    loadBloodTubeImage () {
+      let self = this
+      if (self.question.armWithTourniquetMediaId) {
+        db.collection('media').doc(self.question.bloodTubeMediaId).get().then((snapshot) => {
+          if (snapshot.exists) {
+            let media = snapshot.data()
+            self.queue.loadManifest(
+                [
+                  {
+                    src: media.fileUrl,
+                    crossOrigin: true,
+                    id: "bloodTubeImage",
                     type: "image"
                   },
                 ]
@@ -310,10 +360,35 @@ export default {
         })
       }
     },
+    loadTransporeImage () {
+      let self = this
+      if (self.question.transporeMediaId) {
+        db.collection('media').doc(self.question.transporeMediaId).get().then((snapshot) => {
+          if (snapshot.exists) {
+            let media = snapshot.data()
+            self.queue.loadManifest(
+                [
+                  {
+                    src: media.fileUrl,
+                    crossOrigin: true,
+                    id: "transporeImage",
+                    type: "image"
+                  },
+                ]
+            )
+          }
+        })
+      }
+    },
     rotateNeedle() {
       let self = this
       self.needleMedia.rotation = self.needleMedia.rotation - 45
-      console.log(self.needleMedia.rotation)
+      self.stage.update()
+    },
+    rotateBloodTube() {
+      let self = this
+      self.mixTimes += 1
+      self.bloodTubeMedia.rotation = self.bloodTubeMedia.rotation - 180
       self.stage.update()
     },
     drawLine1() {
@@ -371,13 +446,11 @@ export default {
     nextQuestion() {
       let self = this
       let next = self.questionNo + 1
-      if (self.answer === null) {
-        self.answers[self.questionNo] = {
-          'answer': '',
-          'updatedAt': new Date(),
-          'questionId': self.questionId,
-          'key': self.question.answer
-        }
+      self.answers[self.questionNo] = {
+        'answer': self.done,
+        'updatedAt': new Date(),
+        'questionId': self.questionId,
+        'key': true,
       }
       db.collection('records')
           .doc(self.$store.state.recordId).update({
@@ -418,6 +491,33 @@ export default {
     },
     handleComplete() {
       let self = this
+      let transporeImageRef = self.queue.getResult('transporeImage')
+      self.transporeMedia = new self.createjs.Bitmap(transporeImageRef);
+      self.transporeMedia.scale = 0.2
+      self.transporeMedia.x = 500.0
+      self.transporeMedia.y = 400.0
+      self.transporeMedia.on("click", function() {
+        // tourniquet must be released
+        if (!self.armWithTouriquetMedia.visible) {
+          if (self.bloodVolume == 10) {
+            self.transporeMedia.x = self.drawnX
+            self.transporeMedia.y = self.drawnY - 50
+            self.transporePut = true
+            self.stage.update()
+          } else {
+            self.message = "ควรเจาะเลือดให้ได้ปริมาณเต็มก่อน"
+          }
+        } else {
+          self.message = "ควรปลด tourniquet ก่อน"
+        }
+      })
+      let bloodTubeImageRef = self.queue.getResult('bloodTubeImage')
+      self.bloodTubeMedia = new self.createjs.Bitmap(bloodTubeImageRef);
+      self.bloodTubeMedia.visible = false
+      self.bloodTubeMedia.x = 450.0
+      self.bloodTubeMedia.y = 600.0
+      self.bloodTubeMedia.rotation = -45
+      self.bloodTubeMedia.scale = 0.2
       let armWithTourniquetImageRef = self.queue.getResult('armWithTourniquetImage')
       self.armWithTouriquetMedia = new self.createjs.Bitmap(armWithTourniquetImageRef);
       self.armWithTouriquetMedia.visible = false
@@ -427,8 +527,8 @@ export default {
       let needleImageRef = self.queue.getResult('needleImage')
       self.needleMedia = new self.createjs.Bitmap(needleImageRef);
       self.needleMedia.scale = 0.2
-      self.needleMedia.x = 500.0
-      self.needleMedia.y = 200.0
+      self.needleMedia.x = self.needleOriX
+      self.needleMedia.y = self.needleOriY
       self.needleMedia.on("pressmove", function(event) {
         console.log(self.armWithTouriquetMedia.visible)
         if (self.armWithTouriquetMedia.visible) {
@@ -449,10 +549,18 @@ export default {
       self.tourniquetMedia.x = 500.0
       self.tourniquetMedia.on("click", function() {
         if (self.armWithOutTouriquetMedia.visible) {
-          self.armWithOutTouriquetMedia.visible = false
-          self.armWithTouriquetMedia.visible = true
-          self.tourniquetOn = true
+          if (!self.drawnX && !self.drawnY) {
+            self.armWithOutTouriquetMedia.visible = false
+            self.armWithTouriquetMedia.visible = true
+            self.tourniquetOn = true
+          } else {
+            self.message = "การเจาะเลือดสิ้นสุดแล้ว"
+          }
         } else {
+          if (self.bloodVolume == 10) {
+            self.needleMedia.x = self.needleOriX
+            self.needleMedia.y = self.needleOriY
+          }
           self.armWithTouriquetMedia.visible = false
           self.armWithOutTouriquetMedia.visible = true
           self.tourniquetOn = false
@@ -469,27 +577,39 @@ export default {
       self.cottonBallMedia.y = 300
       self.cottonBallMedia.on("pressmove", function (event) {
         self.hasCleaned = true
-        self.cottonBallMedia.x = event.stageX
-        self.cottonBallMedia.y = event.stageY
-        self.stage.update()
+        if (self.drawnX || self.drawnY) {
+          self.message = "ไม่ควรทำความสะอาดหลังเจาะเลือด"
+        } else {
+          self.cottonBallMedia.x = event.stageX
+          self.cottonBallMedia.y = event.stageY
+          self.stage.update()
+        }
       })
       self.stage.addChild(self.cottonBallMedia)
+      self.stage.addChild(self.transporeMedia)
+      self.stage.addChild(self.bloodTubeMedia)
       let cottonBoxImageRef = self.queue.getResult('cottonBoxImage')
       self.cottonBoxMedia = new self.createjs.Bitmap(cottonBoxImageRef);
       self.cottonBoxMedia.scale = 0.1
       self.cottonBoxMedia.x = 500
       self.cottonBoxMedia.y = 300
+      self.stage.addChild(self.cottonBoxMedia)
       self.drawLine1()
       self.drawLine2()
       self.drawLine3()
       self.line1.on("mousedown", function (e) {
-        if (self.armWithTouriquetMedia.visible) {
+        if (self.armWithTouriquetMedia.visible && self.needleHasMoved) {
           let pt = self.line1.localToLocal(e.localX, e.localY, self.needleMedia)
+          self.drawnX = e.localX
+          self.drawnY = e.localY
           if (self.needleMedia.hitTest(pt.x, pt.y)) {
             if (self.question.line1Depth * 10 == self.needleDepth && self.bloodVolume < 10) {
               self.depthMessage = ""
               self.message = ""
               self.bloodVolume = self.bloodVolume + 2
+              if (self.bloodVolume == 10) {
+                self.bloodTubeMedia.visible = true
+              }
             } else {
               self.depthMessage = "ตรวจสอบความลึกของเข็มและปรับระดับให้เหมาะสม"
             }
@@ -507,7 +627,6 @@ export default {
         }
       })
       self.line1.on("pressup", function () {
-        console.log("mouse up")
         if (!self.isDrawing) {
           self.line1.graphics.clear()
           self.line1.graphics.setStrokeStyle(self.question.line1Width)
@@ -518,9 +637,26 @@ export default {
           self.stage.update()
         }
       })
-      self.line2.on("mousedown", function () {
-        console.log("mouse down")
-        if (!self.isDrawing) {
+      self.line2.on("mousedown", function (e) {
+        if (self.armWithTouriquetMedia.visible && self.needleHasMoved) {
+          let pt = self.line2.localToLocal(e.localX, e.localY, self.needleMedia)
+          self.drawnX = e.localX
+          self.drawnY = e.localY
+          if (self.needleMedia.hitTest(pt.x, pt.y)) {
+            if (self.question.line2Depth * 10 == self.needleDepth && self.bloodVolume < 10) {
+              self.depthMessage = ""
+              self.message = ""
+              self.bloodVolume = self.bloodVolume + 2
+              if (self.bloodVolume == 10) {
+                self.bloodTubeMedia.visible = true
+              }
+            } else {
+              self.depthMessage = "ตรวจสอบความลึกของเข็มและปรับระดับให้เหมาะสม"
+            }
+          } else {
+            self.message = "วางเข็มไว้บนเส้นเลือดและแตะที่ปลายเข็มเพื่อดูดเลือด"
+          }
+        } else {
           self.line2.graphics.clear()
           self.line2.graphics.setStrokeStyle(self.question.line2Width)
             .beginStroke(self.createjs.Graphics.getRGB(0,153,76,0.5))
@@ -531,7 +667,6 @@ export default {
         }
       })
       self.line2.on("pressup", function () {
-        console.log("mouse up")
         if (!self.isDrawing) {
           self.line2.graphics.clear()
           self.line2.graphics.setStrokeStyle(self.question.line2Width)
@@ -542,9 +677,26 @@ export default {
           self.stage.update()
         }
       })
-      self.line3.on("mousedown", function () {
-        console.log("mouse down")
-        if (!self.isDrawing) {
+      self.line3.on("mousedown", function (e) {
+        if (self.armWithTouriquetMedia.visible && self.needleHasMoved) {
+          let pt = self.line3.localToLocal(e.localX, e.localY, self.needleMedia)
+          self.drawnX = e.localX
+          self.drawnY = e.localY
+          if (self.needleMedia.hitTest(pt.x, pt.y)) {
+            if (self.question.line3Depth * 10 == self.needleDepth && self.bloodVolume < 10) {
+              self.depthMessage = ""
+              self.message = ""
+              self.bloodVolume = self.bloodVolume + 2
+              if (self.bloodVolume == 10) {
+                self.bloodTubeMedia.visible = true
+              }
+            } else {
+              self.depthMessage = "ตรวจสอบความลึกของเข็มและปรับระดับให้เหมาะสม"
+            }
+          } else {
+            self.message = "วางเข็มไว้บนเส้นเลือดและแตะที่ปลายเข็มเพื่อดูดเลือด"
+          }
+        } else {
           self.line3.graphics.clear()
           self.line3.graphics.setStrokeStyle(self.question.line3Width)
             .beginStroke(self.createjs.Graphics.getRGB(0,153,76,0.5))

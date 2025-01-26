@@ -252,7 +252,7 @@ export default {
           }
         })
       }
-    }
+    },
   },
   mounted() {
     this.sessionId = this.$route.params.sessionId
