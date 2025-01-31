@@ -166,11 +166,11 @@ export default {
     },
     submit () {
       const self = this
-      if (this.answers.length === 0) {
-        this.$buefy.dialog.alert('คุณยังไม่ได้เริ่มทำชุดคำถามนี้ หากต้องการยกเลิกให้คลิกที่ปุ่ม End')
+      if (self.answers.length === 0) {
+        self.$buefy.dialog.alert('คุณยังไม่ได้เริ่มทำชุดคำถามนี้ หากต้องการยกเลิกให้คลิกที่ปุ่ม End')
         return
       }
-      this.$buefy.dialog.confirm({
+      self.$buefy.dialog.confirm({
         message: 'ท่านต้องการส่งคำตอบและสิ้นสุดชุดนี้ใช่หรือไม่',
         title: 'Submit answer and end the session',
         type: 'is-warning',
@@ -181,8 +181,8 @@ export default {
         onConfirm: () => {
           let submittedAt = new Date()
           db.collection('records')
-              .doc(this.$store.state.recordId).update({
-                answers: this.answers,
+              .doc(self.$store.state.recordId).update({
+                answers: self.answers,
                 end: submittedAt,
                 submittedAt: submittedAt
               }
@@ -192,7 +192,9 @@ export default {
             //   type: "is-success"
             // })
             let srs = 0
-            let totalScore = self.answers.filter((d) => d.answer == d.key)
+            console.log(self.answers)
+            let totalScore = self.answers.filter((d) => d.answer === d.key)
+            console.log(totalScore)
             db.collection('session_records')
                 .where('sessionId', '==', self.$store.state.sessionId)
                 .where('email', '==', self.$store.state.user.email)
@@ -206,18 +208,17 @@ export default {
                     db.collection('session_records').doc(snapshot.id).update({attempts: data.attempts + 1, pass: pass})
                   })
                 }).then(() => {
-                  if (this.$store.state.profile.group == "กลุ่มลำดับเลขคี่") {
-                    let diff = (submittedAt.getTime() - this.$store.state.lessonStartDateTime.getTime())/1000
+                  if (self.$store.state.profile.group == "กลุ่มลำดับเลขคี่") {
+                    let diff = (submittedAt.getTime() - self.$store.state.lessonStartDateTime.getTime())/1000
                     diff /= 60
                     let srt = Math.round(diff) 
                     let timeMessage = ""
                     let evalMessage = ""
-                    let tet = this.$store.state.tet
-                    let tes = this.$store.state.tes
-                    let set = this.$store.state.setAnswer
-                    let ses = this.$store.state.sesAnswer
-                    let svs = this.$store.state.svsAnswer
-                    console.log(set, srt, tet, srt, srs)
+                    let tet = self.$store.state.tet
+                    let tes = self.$store.state.tes
+                    let set = self.$store.state.setAnswer
+                    let ses = self.$store.state.sesAnswer
+                    let svs = self.$store.state.svsAnswer
                     if (set - srt >= 0 && tet - srt >= 0) {
                       timeMessage = `คุณควบคุมเวลาได้สมบูรณ์แบบและเรียนจบในเวลาที่ครูคาดหวัง`
                     } else if (set - srt >= 0 && tet - srt < 0) {
@@ -256,7 +257,7 @@ export default {
                       <p>${evalMessage}</p>
                       `
                     }).then(()=>{
-                        this.$router.push({ name: 'UserProgramList' })
+                        self.$router.push({ name: 'UserProgramList' })
                     })
                   } else {
                     Swal.fire({
@@ -266,11 +267,11 @@ export default {
                       <p>${totalScore.length} คะแนน</p>
                       `
                     }).then(()=>{
-                        this.$router.push({ name: 'UserProgramList' })
+                        self.$router.push({ name: 'UserProgramList' })
                     })
                   }
-                  this.$store.dispatch('setSessionId', null)
-                  this.$store.dispatch('clearAnswers')
+                  self.$store.dispatch('setSessionId', null)
+                  self.$store.dispatch('clearAnswers')
                 })
           })
         }
@@ -373,6 +374,7 @@ export default {
           })
       })
       if (next < this.questions.length) {
+        this.answer = null
         this.$router.push({
           name: 'Question',
           params: {
@@ -390,10 +392,11 @@ export default {
           ariaModal: true,
           cancelText: "ทำต่อ",
           confirmText: "ส่งคำตอบ",
-          onConfirm: ()=>{ this.submit() }
+          onConfirm: ()=>{
+            this.submit()
+          }
         })
       }
-      this.answer = null
     },
     giveFeedback () {
     },
