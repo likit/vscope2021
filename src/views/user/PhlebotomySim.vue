@@ -170,6 +170,7 @@ export default {
       this.bloodVolume = 0
       this.tourniquetOn = false
       this.hasCleaned = false
+      this.bloodTubeMedia.visible = false
       this.needleDepth = 0.0
       this.needleFixPointX = null
       this.needleFixPointY = null
