@@ -21,7 +21,7 @@
         <canvas ref="imageCanvas" width="800" height="800"></canvas>
         </div>
         <div class="column">
-          <b-image :src="tourniquetImageUrl" width="200" @click.native="tourniquetClick"></b-image>
+          <b-image :src="tourniquetImageUrl" @click.native="tourniquetClick"></b-image>
           <b-field label="ปริมาณเลือด">
             <b-progress :max=10 size="is-large" show-value type="is-danger" v-model="bloodVolume"></b-progress>
           </b-field>
@@ -159,6 +159,8 @@ export default {
       this.mixTimes = 0
       this.answer = null
       this.transporePut = false
+      this.transporeMedia.x = 500.0
+      this.transporeMedia.y = 400.0
       this.depthMessage = ""
       this.message = ""
       this.bloodVolume = 0
@@ -231,7 +233,7 @@ export default {
             let srs = 0
             let totalScore = self.answers.filter((d) => d.answer == d.key)
             db.collection('session_records')
-                .where('sessionId', '==', self.$store.state.sessionId)
+                .where('sessionId', '==', self.question.sessionId)
                 .where('email', '==', self.$store.state.user.email)
                 .get().then((querySnapshot)=>{
                   querySnapshot.docs.forEach((snapshot)=>{

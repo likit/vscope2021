@@ -194,16 +194,17 @@ export default {
             // })
             let srs = 0
             let totalScore = self.answers.filter((d) => d.answer === d.key && d.point > 0)
+            // console.log(`Total score is ${totalScore.length}`, self.question.sessionId)
             db.collection('session_records')
-                .where('sessionId', '==', self.$store.state.sessionId)
+                .where('sessionId', '==', self.question.sessionId)
                 .where('email', '==', self.$store.state.user.email)
                 .get().then((querySnapshot)=>{
                   querySnapshot.docs.forEach((snapshot)=>{
                     let data = snapshot.data()
                     srs = data.attempts + 1
                     // console.log(`Total score ${totalScore}`)
-                    // console.log(`Total score is ${totalScore.length}`)
                     let pass = totalScore.length >= self.session.passingScore ? true : false
+                    // console.log(`Pass result ${pass}`)
                     db.collection('session_records').doc(snapshot.id).update({attempts: data.attempts + 1, pass: pass})
                   })
                 }).then(() => {
