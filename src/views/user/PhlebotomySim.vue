@@ -138,7 +138,11 @@ export default {
       return (this.bloodVolume == 10) && (this.mixTimes > 0) && (this.transporePut)
     },
     unlockedNext () {
-      return this.done && this.questionNo == 0
+      if (this.questionNo > 0) {
+        return true
+      } else {
+        return this.done && this.questionNo == 0
+      }
     }
   },
   watch: {
