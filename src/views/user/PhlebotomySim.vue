@@ -791,6 +791,10 @@ export default {
           self.drawnX = e.localX
           self.drawnY = e.localY
           if (self.needleMedia.hitTest(pt.x, pt.y)) {
+            self.message = ""
+            self.needleMessage = "เข็มแทงเข้าเส้นเลือดแล้ว ให้ลองปรับระดับความลึกของเข็มและคลิก draw"
+            self.needleFixPointX = self.needleMedia.x
+            self.needleFixPointY = self.needleMedia.y
             if (self.question.line2Depth * 10 == self.needleDepth && self.bloodVolume < 10) {
               self.depthMessage = ""
               self.message = ""
@@ -835,6 +839,10 @@ export default {
           self.drawnX = e.localX
           self.drawnY = e.localY
           if (self.needleMedia.hitTest(pt.x, pt.y)) {
+            self.message = ""
+            self.needleMessage = "เข็มแทงเข้าเส้นเลือดแล้ว ให้ลองปรับระดับความลึกของเข็มและคลิก draw"
+            self.needleFixPointX = self.needleMedia.x
+            self.needleFixPointY = self.needleMedia.y
             if (self.question.line3Depth * 10 == self.needleDepth && self.bloodVolume < 10) {
               self.depthMessage = ""
               self.message = ""
