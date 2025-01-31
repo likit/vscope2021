@@ -47,10 +47,16 @@
             <b-button @click="putTransporeOn">
               ปิด transpore
             </b-button>
-            <b-button class="button is-success" @click="nextQuestion">
+            <b-button class="button is-success" :disabled="!unlockedNext" @click="nextQuestion">
               <span>Next</span>
               <span class="icon">
                 <i class="fas fa-chevron-right"></i>
+              </span>
+            </b-button>
+            <b-button class="button is-success" @click="reset">
+              <span>Restart</span>
+              <span class="icon">
+                <i class="fas fa-undo"></i>
               </span>
             </b-button>
             <button class="button is-danger" @click="endSession">
@@ -129,8 +135,10 @@ export default {
       return (this.needleOriX !== this.needleMedia.x || this.needleOriY !== this.needleMedia.y)
     },
     done() {
-      console.log(this.bloodVolume == 10, this.mixTimes > 0, this.transporePut)
       return (this.bloodVolume == 10) && (this.mixTimes > 0) && (this.transporePut)
+    },
+    unlockedNext () {
+      return this.done && this.questionNo == 0
     }
   },
   watch: {
@@ -161,7 +169,11 @@ export default {
       this.needleFixPointY = null
       this.needleMessage = ""
       this.tourniquetOn = false
-      this.session = null
+      this.needleMedia.x = this.needleOriX
+      this.needleMedia.y = this.needleOriY
+      this.armWithTouriquetMedia.visible = false
+      this.armWithOutTouriquetMedia.visible = true
+      this.stage.update()
     },
     endSession () {
       this.$buefy.dialog.confirm({
