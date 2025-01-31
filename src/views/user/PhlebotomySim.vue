@@ -257,7 +257,7 @@ export default {
                     let set = self.$store.state.setAnswer
                     let ses = self.$store.state.sesAnswer
                     let svs = self.$store.state.svsAnswer
-                    console.log(set, srt, tet, srt, srs)
+                    // console.log(set, srt, tet, srt, srs)
                     if (set - srt >= 0 && tet - srt >= 0) {
                       timeMessage = `คุณควบคุมเวลาได้สมบูรณ์แบบและเรียนจบในเวลาที่ครูคาดหวัง`
                     } else if (set - srt >= 0 && tet - srt < 0) {
@@ -604,7 +604,6 @@ export default {
           .doc(self.$store.state.recordId).update({
         answers: self.answers
       }).then(() => {
-        self.reset()
         self.$buefy.toast.open({
           message: "บันทึกคำตอบเรียบร้อย",
           type: "is-success",
@@ -616,6 +615,7 @@ export default {
           })
       })
       if (next < self.questions.length) {
+        self.reset()
         self.$router.push({
           name: 'PhlebotomySimUser',
           params: {
@@ -679,7 +679,7 @@ export default {
       // let tourniquetImageRef = self.queue.getResult('tourniquetImage')
       let needleImageRef = self.queue.getResult('needleImage')
       self.needleMedia = new self.createjs.Bitmap(needleImageRef);
-      self.needleMedia.scale = 0.4
+      self.needleMedia.scale = 0.5
       self.needleMedia.rotation = -240
       self.needleMedia.x = self.needleOriX
       self.needleMedia.y = self.needleOriY
