@@ -176,6 +176,7 @@ export default {
       this.needleFixPointY = null
       this.needleMessage = ""
       this.tourniquetOn = false
+      this.needleMedia.rotation = -180
       this.needleMedia.x = this.needleOriX
       this.needleMedia.y = this.needleOriY
       this.armWithTouriquetMedia.visible = false
@@ -646,20 +647,21 @@ export default {
     drawBlood () {
       const self = this
       if (self.needleFixPointX && self.needleFixPointY) {
+        console.log(self.needleFixPointX, self.needleFixPointY)
         self.needleMedia.x = self.needleFixPointX
         self.needleMedia.y = self.needleFixPointY
         self.stage.update()
-      }
-      if (self.question.line1Depth * 10 == self.needleDepth && self.bloodVolume < 10) {
-        self.depthMessage = ""
-        self.message = ""
-        self.bloodVolume = self.bloodVolume + 2
-        if (self.bloodVolume == 10) {
-          self.bloodTubeMedia.visible = true
-          self.stage.update()
+        if (self.question.line1Depth * 10 == self.needleDepth && self.bloodVolume < 10) {
+          self.depthMessage = ""
+          self.message = ""
+          self.bloodVolume = self.bloodVolume + 2
+          if (self.bloodVolume == 10) {
+            self.bloodTubeMedia.visible = true
+            self.stage.update()
+          }
+        } else {
+          self.depthMessage = "ตรวจสอบความลึกของเข็มและปรับระดับให้เหมาะสม"
         }
-      } else {
-        self.depthMessage = "ตรวจสอบความลึกของเข็มและปรับระดับให้เหมาะสม"
       }
     },
     handleComplete() {
